@@ -61,3 +61,14 @@ export function assessmentBatch(bank,state,scope='all',limit=5) {
 export function lessonPlan(units,mastery){
  return [...new Set(units.map(u=>u.topic))].sort((a,b)=>(mastery[a]??.25)-(mastery[b]??.25)).map(t=>({topic:t,mastery:mastery[t]??.25,review:units.filter(u=>u.topic===t).slice(0,2).map(u=>u.id)}));
 }
+
+export function validateConceptMap(result,units){
+ if(!result||!Array.isArray(result.nodes)||!Array.isArray(result.edges))throw Error('Invalid concept map.');
+ const nodes=result.nodes.filter(n=>n&&typeof n.id==='string'&&typeof n.label==='string'&&Array.isArray(n.evidence)&&n.evidence.length&&n.evidence.every(e=>typeof e.quote==='string'&&e.quote.trim().length>=5&&units.some(u=>u.id===e.id&&u.text.includes(e.quote))));
+ if(nodes.length!==result.nodes.length||!nodes.length)throw Error('Concepts need exact source evidence.');
+ if(new Set(nodes.map(n=>n.id)).size!==nodes.length)throw Error('Concept IDs must be unique.');
+ const ids=new Set(nodes.map(n=>n.id)),edges=result.edges.filter(e=>e&&ids.has(e.from)&&ids.has(e.to)&&e.from!==e.to&&typeof e.reason==='string');
+ if(edges.length!==result.edges.length)throw Error('Invalid prerequisite edge.');
+ const seen=new Set(),active=new Set();function visit(id){if(active.has(id))throw Error('Prerequisite map contains a cycle.');if(seen.has(id))return;active.add(id);for(const e of edges.filter(e=>e.from===id))visit(e.to);active.delete(id);seen.add(id);}for(const n of nodes)visit(n.id);
+ return {nodes,edges};
+}
