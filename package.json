@@ -1,0 +1,15 @@
+{
+  "name": "robo-study-companion",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "node test.mjs",
+    "evaluate": "node evaluate.mjs",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "jszip": "^3.10.2",
+    "pdfjs-dist": "^4.10.38",
+    "vite": "^6.4.4"
+  }
+}
