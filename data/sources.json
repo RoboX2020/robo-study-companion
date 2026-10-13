@@ -1,0 +1,857 @@
+[
+  {
+    "id": "lab-0-0",
+    "title": "[1] Lab 3: TurtleBot 3 ROS2 Integration, Sensors, Localization, and Navigation - Tatwik Meesala \u2014 tatwik19.github.io",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: [1] Lab 3: TurtleBot 3 ROS2 Integration, Sensors, Localization, and Navigation - Tatwik Meesala \u2014 tatwik19.github.io",
+    "text": "[1] Lab 3: TurtleBot 3 ROS2 Integration, Sensors, Localization, and Navigation - Tatwik Meesala \u2014 tatwik19.github.io\nhttps://tatwik19.github.io/labs/lab-03-isaac-sim/\n\nLab 3: TurtleBot 3 ROS2 Integration, Sensors, Localization, and Navigation - Tatwik Meesala\n\n# Lab 3: TurtleBot 3 ROS2 Integration, Sensors, Localization, and Navigation\n\n Lab 3\n\nRAS 545: Robotics Systems I\n\nBuild a ROS 2-enabled TurtleBot 3 simulation: send movement commands, add camera and laser sensors, estimate the robot's position with odometry and localization, visualize the environment, and enable autonomous Nav2 navigation.\n\nInstructor: Prof. Sangram Redkar ([contact omitted])\n\nAuthors:\n\n- Sai Srinivas Tatwik Meesala: [contact omitted]\n- Prajval Arora: [contact omitted]\n\n> Required scope: Students are required to complete Parts A\u2013F and submit the required deliverables. Parts G\u2013J are supplementary and optional after the Part F submission.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-1-0",
+    "title": "Start Here",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Start Here",
+    "text": "## Start Here\n\nComplete the laboratory in the following order:\n\n1. Read the software and hardware requirements.\n2. Download the starter USD file.\n3. Complete Part A before creating any Action Graph.\n4. Save a checkpoint file after every major part.\n5. Do not continue to the next part until the validation command succeeds.\n6. Record screenshots for every checkpoint.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-2-0",
+    "title": "Submission Summary",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Submission Summary",
+    "text": "## Submission Summary\n\nSubmit:\n\n1. Checkpoint USD or USDA files.\n2. Lab report.\n3. Demonstration video.\n4. ROS 2 commands and configuration files.\n5. Required screenshots.\n6. Final diagnostic output.\n\nThe required submission covers Parts A\u2013F. Parts G\u2013J may be completed as supplementary work after submission and are not required for the initial check-off.\n\nThe report must document each required part, A through F. After completing every part, capture the required screenshots, save the corresponding checkpoint file, record the validation results, and add the procedure, results, and observations to the report before continuing.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-3-0",
+    "title": "Laboratory Roadmap",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Laboratory Roadmap",
+    "text": "## Laboratory Roadmap\n\n| Stage | Main task | Required result |\n| --- | --- | --- |\n| A | Validate the starter USD | Robot simulates without ROS 2 |\n| B | Publish `/clock` | ROS 2 receives simulation time |\n| C | Control the robot | `/cmd_vel` moves the robot |\n| D | Add lidar | `/scan` publishes LaserScan data |\n| E | Add camera | Camera image topics publish |\n| F | Publish odometry and TF | `odom \u2192 base_footprint` exists |\n| G | Inspect QoS (optional) | QoS compatibility is understood |\n| H | Run localization (optional) | AMCL publishes `map \u2192 odom` |\n| I | Run Nav2 (optional) | Robot reaches a goal |\n| J | Complete diagnostics (optional) | All required outputs are verified |\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-4-0",
+    "title": "1. Lab Overview",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: 1. Lab Overview",
+    "text": "## 1. Lab Overview\n\nThis laboratory transforms a prepared TurtleBot 3 simulation model into a ROS2-enabled mobile robot. You will progressively add and validate the core capabilities needed for autonomous operation in simulation.\n\n### At a glance\n\nBy the end of this lab, you will build a complete ROS2 mobile robot in Isaac Sim and verify that it can:\n\n- publish simulation time on `/clock`\n- receive velocity commands on `/cmd_vel`\n- drive using differential-wheel control\n- publish LIDAR data on `/scan`\n- publish camera data on `/camera/image_raw`\n- publish odometry and TF transforms\n- localize the robot using AMCL and a saved map\n- navigate to a goal using Nav2\n\nThe system is assembled incrementally, and each section ends with a validation checkpoint to confirm that the current stage is functioning correctly.\n\n### Learning outcomes\n\nAfter completing this laboratory, you will be able to:\n\n- configure and validate real-time ROS2 communication in Isaac Sim\n- build a differential-drive mobile robot controller\n- publish sensor data from a simulated LIDAR and camera\n- publish odometry and TF information for robot localization\n- configure AMCL and Nav2 for map-based navigation\n\n> Important: This lab is intentionally structured as a layered robotics integration exercise. Complete each section in order, and do not proceed until the current checkpoint is working.\n\n> Critical constraint: T",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-4-1400",
+    "title": "1. Lab Overview",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: 1. Lab Overview",
+    "text": "he TF tree must not contain both `world -> odom` and `map -> odom`. Use only the valid transform chain required by this lab.\n\nThe required system architecture is:\n\n```\nIsaac Sim\n\u2502\n\u251c\u2500\u2500 Physics simulation\n\u251c\u2500\u2500 TurtleBot articulation\n\u251c\u2500\u2500 Camera sensor\n\u251c\u2500\u2500 RTX lidar sensor\n\u251c\u2500\u2500 ROS2 Action Graphs\n\u2502\n\u2514\u2500\u2500 ROS2\n    \u251c\u2500\u2500 /clock\n    \u251c\u2500\u2500 /cmd_vel\n    \u251c\u2500\u2500 /odom\n    \u251c\u2500\u2500 /tf\n    \u251c\u2500\u2500 /scan\n    \u251c\u2500\u2500 /camera/image_raw\n    \u2514\u2500\u2500 /map\n\nNav2\n\u251c\u2500\u2500 Map server\n\u251c\u2500\u2500 AMCL\n\u251c\u2500\u2500 Global costmap\n\u251c\u2500\u2500 Local costmap\n\u251c\u2500\u2500 Planner\n\u2514\u2500\u2500 Controller\n\n```\n\nThe final TF tree must be:\n\n```\nmap\n\u2514\u2500\u2500 odom\n    \u2514\u2500\u2500 base_footprint\n        \u251c\u2500\u2500 base_link\n        \u251c\u2500\u2500 base_scan\n        \u251c\u2500\u2500 wheel_left_link\n        \u251c\u2500\u2500 wheel_right_link\n        \u251c\u2500\u2500 caster_back_link\n        \u2514\u2500\u2500 Camera_1\n\n```\n\nDo not create or publish:\n\n```\nworld \u2192 odom\n\n```\n\nFor this laboratory, AMCL publishes:\n\n```\nmap \u2192 odom\n\n```\n\nIsaac Sim publishes:\n\n```\nodom \u2192 base_footprint\nbase_footprint \u2192 robot links\n\n```\n\nA frame must not have two competing parents.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-5-0",
+    "title": "2. What You Will Do",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: 2. What You Will Do",
+    "text": "## 2. What You Will Do\n\nYou will begin with the supplied TurtleBot USD file. The supplied file contains:\n\n- A TurtleBot 3 Burger model\n- Robot visual geometry\n- Robot collision geometry\n- Rigid-body physics\n- Articulation and joints\n- A ground plane\n- Lighting\n- A world observation camera\n\nThe supplied file intentionally does not contain:\n\n- ROS2 Action Graphs\n- A ROS2 clock publisher\n- A velocity command subscriber\n- A lidar sensor\n- A camera mounted on the robot\n- A camera publisher\n- An odometry publisher\n- TF publishers\n- A localization system\n- Nav2\n\nYou must add these components during the laboratory.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-6-0",
+    "title": "3. Learning Goals",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: 3. Learning Goals",
+    "text": "## 3. Learning Goals\n\nBy the end of this laboratory, you will be able to:\n\n- Open and inspect a USD stage in Isaac Sim.\n- Identify a robot root prim and robot link prims.\n- Explain the difference between visual geometry and collision geometry.\n- Verify that a robot has physics and articulation settings.\n- Create an Isaac Sim Action Graph.\n- Add and connect OmniGraph nodes.\n- Create a ROS2 context.\n- Publish Isaac Sim simulation time to `/clock`.\n- Subscribe to `geometry_msgs/msg/Twist`.\n- Convert linear and angular velocity commands into wheel velocities.\n- Control a differential-drive robot.\n- Add and position an RTX lidar sensor.\n- Publish `sensor_msgs/msg/LaserScan`.\n- Add and position a camera sensor.\n- Publish RGB camera images and camera information.\n- Publish nav_msgs/msg/Odometry.\n- Publish and inspect TF transforms.\n- Understand ROS2 Quality of Service.\n- Run map-based localization with AMCL.\n- Use RViz2 to set an initial pose and send a navigation goal.\n- Use ROS2 diagnostic commands to identify configuration errors.\n\n### 4.1 Required software\n\nThe computer must have the following software installed and validated:\n\n- Ubuntu Linux\n- ROS2 Humble\n- Isaac Sim 6.0.1\n- RViz2\n- Nav2\n- `tf2_tools`\n- `rqt_image_view`\n- `teleop_twist_keyboard`\n\nOpen a terminal and run:\n\n```\nsource /opt/ros/humble/setup.bash\n\n```\n\nSet the ROS2 domain to zero:\n\n```\nexport ROS_DOMAIN_ID=0\n\n```\n\nVe",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-6-1400",
+    "title": "3. Learning Goals",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: 3. Learning Goals",
+    "text": "rify ROS2:\n\n```\nros2 --version\n\n```\n\nVerify that ROS2 can discover itself:\n\n```\nros2 topic list\n\n```\n\n![Screenshot from 2026-09-16 01-49-44](https://github.com/user-attachments/assets/5533b094-9c1b-47a6-93be-b66536751d17)\n\nAt this point, `/clock`, `/scan`, `/odom`, and `/tf` may not exist yet. They will be created during this laboratory.\n\n### 4.2 Required files\n\nThe instructor will provide:\n\n```\nstudent_handout_turtlebot3_ros2_scene.usda\nturtlebot3_map.yaml\nturtlebot3_map.pgm\n\n```\n\nDownload the supplied USD scene file here: student_handout_turtlebot3_ros2_scene.usda\n\nThe map YAML file must reference the map image using a valid path.\n\nA typical map YAML file is:\n\n```\nimage: turtlebot3_map.pgm\nmode: trinary\nresolution: 0.05\norigin: [-6.2, -3.32, 0]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.25\n\n```\n\nDo not change these values unless instructed.\n\n### 4.3 Create a working directory\n\n```\nmkdir -p ~/RAS545/Lab3/assets\nmkdir -p ~/RAS545/Lab3/work\nmkdir -p ~/RAS545/Lab3/maps\nmkdir -p ~/RAS545/Lab3/logs\nmkdir -p ~/RAS545/Lab3/results\n\n```\n\nPlace the supplied USD file in:\n\n```\n~/RAS545/Lab3/assets/student_handout_turtlebot3_ros2_scene.usda\n\n```\n\nPlace the map files in:\n\n```\n~/RAS545/Lab3/maps/turtlebot3_map.yaml\n~/RAS545/Lab3/maps/turtlebot3_map.pgm\n\n```\n\n```\nls -l ~/RAS545/Lab3/assets\nls -l ~/RAS545/Lab3/maps\n\n```\n\nYou should see the USD file, YAML file, and PGM file.\n\n### 4.4 Impor",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-6-2800",
+    "title": "3. Learning Goals",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: 3. Learning Goals",
+    "text": "tant file-format note\n\nUSD files may use either of these extensions:\n\n```\n.usd\n.usda\n\n```\n\n`.usd` is normally a binary USD file. `.usda` is a text-based USD file.\n\n`.uda` is not a standard USD file extension. If the course deliverable says `.uda`, confirm whether `.usda` was intended.\n\n### 5.1 Coordinate convention\n\nThis laboratory uses the following coordinate convention:\n\n```\n+X: forward\n+Y: left\n+Z: upward\n\n```\n\nFor the TurtleBot:\n\n- Forward motion uses positive linear velocity in X.\n- Rotation is about the Z axis.\n- Positive angular velocity rotates counterclockwise when viewed from above.\n\n### 5.2 Important prim paths\n\nThe supplied stage uses these paths:\n\n```\n/turtlebot3_burger\n/turtlebot3_burger/base_footprint\n/turtlebot3_burger/base_link\n/turtlebot3_burger/base_scan\n/turtlebot3_burger/caster_back_link\n/turtlebot3_burger/wheel_left_link\n/turtlebot3_burger/wheel_right_link\n\n```\n\n![Screenshot from 2026-09-16 02-24-40](https://github.com/user-attachments/assets/c47d852a-114c-4987-afdf-53de3b2955e7)\n\nThe robot root prim is:\n\n```\n/turtlebot3_burger\n\n```\n\nThe articulation target used in this laboratory is:\n\n```\n/turtlebot3_burger/base_footprint\n\n```\n\nThe lidar mounting link is:\n\n```\n/turtlebot3_burger/base_scan\n\n```\n\n### 5.3 Starter robot position\n\nThe supplied robot root is positioned approximately at:\n\n```\nTranslation:\nX = 1.8 m\nY = 0.0 m\nZ = 0.0 m\n\nRotation:\nX = 0 degrees\nY",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-6-4200",
+    "title": "3. Learning Goals",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: 3. Learning Goals",
+    "text": " = 0 degrees\nZ = 0 degrees\n\nScale:\nX = 1\nY = 1\nZ = 1\n\n```\n\n![Screenshot from 2026-09-18 23-13-26](https://github.com/user-attachments/assets/d543594f-9ed6-4b40-9860-1345b665e35e)\n\nDo not change the robot root transform during the first part of the laboratory.\n\n### 5.4 Starter physics values\n\nThe supplied TurtleBot already contains robot physics.\n\nImportant values include:\n\n| Prim | Property | Value |\n| --- | --- | --- |\n| `/turtlebot3_burger/base_link` | Mass | `0.825735 kg` |\n| `/turtlebot3_burger/base_scan` | Mass | `0.114 kg` |\n| `/turtlebot3_burger/caster_back_link` | Mass | `0.005 kg` |\n| `/turtlebot3_burger/wheel_left_link` | Mass | `0.02849894 kg` |\n| `/turtlebot3_burger/wheel_right_link` | Mass | `0.02849894 kg` |\n| Wheel distance | Distance between wheel centers | `0.16 m` |\n| Wheel radius | Wheel radius | `0.025 m` |\n\nDo not remove or recreate the robot physics. The purpose of this laboratory is ROS2 integration, not reconstruction of the TurtleBot model.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-7-0",
+    "title": "A1. Open Isaac Sim",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: A1. Open Isaac Sim",
+    "text": "## A1. Open Isaac Sim\n\nFirst source ROS2:\n\n```\nsource /opt/ros/humble/setup.bash\nexport ROS_DOMAIN_ID=0\n\n```\n\nStart Isaac Sim using the installed Isaac Sim launcher.\n\nWait for Isaac Sim to finish loading before opening the USD file.\n\nOpen the file using:\n\n```\nFile \u2192 Open\n\n```\n\nNavigate to:\n\n```\n/home/<your_username>/RAS545/Lab3/assets/student_handout_turtlebot3_ros2_scene.usda\n\n```\n\nReplace `<your_username>` with your Linux username.\n\nAlternatively, use the keyboard shortcut:\n\n```\nCtrl + O\n\n```\n\n```\nstudent_handout_turtlebot3_ros2_scene.usda\n\n```\n\n```\nOpen\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-8-0",
+    "title": "A2. Verify the Stage panel",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: A2. Verify the Stage panel",
+    "text": "## A2. Verify the Stage panel\n\nIf the Stage panel is not visible, open it using:\n\n```\nWindow \u2192 Panels \u2192 Stage\n\n```\n\nVerify that the Stage panel contains:\n\n```\nWorld\nEnvironment\nphysicsScene\nturtlebot3_burger\n\n```\n\nExpand:\n\n```\nturtlebot3_burger\n\n```\n\nYou should find:\n\n```\nbase_footprint\nbase_link\nbase_scan\ncaster_back_link\nwheel_left_link\nwheel_right_link\nvisuals\ncolliders\njoints\n\n```\n\n![Screenshot from 2026-09-15 01-44-08](https://github.com/user-attachments/assets/3b8a49dd-5d04-448d-8915-6e7f606e2d90)\n\nThe starter file should not contain completed ROS Action Graphs.\n\nThe starter file should not contain:\n\n```\nActionGraph\nROS_Clock\nROS_Odometry\nROS_Camera\nROS_Lidar\nROS_GenericPub\nTFWorld2Odom\n\n```\n\nThe starter file should not contain:\n\n```\n/turtlebot3_burger/base_footprint/Camera_1\n\n```\n\nThe starter file should not contain an active RTX lidar sensor named:\n\n```\nExample_Rotary\nExample_Rotary_2D\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-9-0",
+    "title": "A3. Check the robot root transform",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: A3. Check the robot root transform",
+    "text": "## A3. Check the robot root transform\n\nIn the Stage panel, select:\n\n```\nturtlebot3_burger\n\n```\n\nOpen the Property panel:\n\n```\nWindow \u2192 Property\n\n```\n\n![Screenshot from 2026-09-15 01-44-46](https://github.com/user-attachments/assets/c400e5c4-1409-4037-96f4-e1df6e7aad37)\n\nFind the Transform section.\n\nVerify approximately:\n\n```\nTranslate X = 1.8\nTranslate Y = 0.0\nTranslate Z = 0.0\n\nRotate X = 0\nRotate Y = 0\nRotate Z = 0\n\nScale X = 1\nScale Y = 1\nScale Z = 1\n\n```\n\nIf the values are different by a small amount, do not modify them without instructor approval.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-10-0",
+    "title": "A4. Check that physics is present",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: A4. Check that physics is present",
+    "text": "## A4. Check that physics is present\n\nSelect:\n\n```\n/turtlebot3_burger/base_footprint\n\n```\n\nIn the Property panel, verify that physics-related schemas or sections are present.\n\nSelect:\n\n```\n/turtlebot3_burger/base_link\n\n```\n\nVerify that the mass is approximately:\n\n```\n0.825735 kg\n\n```\n\nSelect:\n\n```\n/turtlebot3_burger/wheel_left_link\n\n```\n\nVerify that the wheel has collision geometry.\n\nRepeat for:\n\n```\n/turtlebot3_burger/wheel_right_link\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-11-0",
+    "title": "A5. Test the simulation without ROS2",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: A5. Test the simulation without ROS2",
+    "text": "## A5. Test the simulation without ROS2\n\nPress the Play button at the top of Isaac Sim.\n\nObserve the robot for approximately ten seconds.\n\nExpected result:\n\n- The robot remains on the ground.\n- The robot does not fall through the plane.\n- The robot does not explode or separate.\n- The robot does not move because no velocity controller has been added yet.\n\nPress Stop.\n\n### Validation checkpoint A\n\nTake a screenshot showing:\n\n- The Isaac Sim viewport\n- The TurtleBot\n- The Stage panel\n- The robot prim hierarchy\n\nSave the stage as:\n\n```\n~/RAS545/Lab3/work/Lab3_00_student_start.usda\n\n```\n\nUse:\n\n```\nFile \u2192 Save As\n\n```\n\nDo not overwrite the original starter file.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-12-0",
+    "title": "Objective",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Objective",
+    "text": "## Objective\n\nROS2 nodes must use Isaac Sim simulation time. You will create a graph that publishes simulation time on:\n\n```\n/clock\n\n```\n\nDo not continue until `/clock` is working.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-13-0",
+    "title": "How to Read an Isaac Sim Action Graph",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: How to Read an Isaac Sim Action Graph",
+    "text": "## How to Read an Isaac Sim Action Graph\n\n> Node-name convention: In Isaac Sim 6.0.1, ROS bridge node names use `ROS2` without a space. For example, search for `ROS2 Context`, not `ROS 2 Context`. The surrounding explanation may continue to use the normal phrase \u201cROS 2.\u201d\n\nAn Action Graph contains two different types of connections.\n\n- Solid arrows carry data.\n- Dashed arrows carry execution signals.\n\nA node may have the correct data connection but still not operate if its execution input is not connected.\n\n```mermaid\nflowchart TD\n    Tick[\"On Playback Tick\"] -.->|\"EXECUTION signal\"| Publish[\"Publisher or Controller\"]\n    Context[\"ROS2 Context\"] -->|\"context handle\"| Publish\n    Data[\"Sensor or simulation data\"] -->|\"DATA\"| Publish\n    Time[\"Isaac Read Simulation Time\"] -->|\"timestamp\"| Publish\n\n```\n\nRead every graph in this order:\n\n1. Find the `On Playback Tick` node.\n2. Follow the dashed execution arrows.\n3. Find the `ROS2 Context` node.\n4. Follow the context connection.\n5. Follow the solid data arrows.\n6. Check every node\u2019s Property panel.\n7. Press Play and validate the result in ROS2.\n\n> Important: A graph is not complete when the nodes are merely present. A graph is complete only when the nodes, properties, and connections are correct.\n\n> Visual rule: If an output port is connected, a visible wire must leave that port. If an input port is required, a visible wire must enter",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-13-1400",
+    "title": "How to Read an Isaac Sim Action Graph",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: How to Read an Isaac Sim Action Graph",
+    "text": " that input port.\n\n```mermaid\nflowchart TD\n    Tick[\"On Playback Tick\"] -.->|\"execIn\"| Clock[\"ROS2 Publish Clock\"]\n    Time[\"Isaac Read Simulation Time\"] -->|\"timeStamp\"| Clock\n    Context[\"ROS2 Context\"] -->|\"context\"| Clock\n    Clock -->|\"/clock\"| ROS[\"ROS2 network\"]\n\n```\n\n### Clock Graph: Required Port Connections\n\n| Source node | Output port | Destination node | Input port | Connection type |\n| --- | --- | --- | --- | --- |\n| `On Playback Tick` | `tick` | `ROS2 Publish Clock` | `execIn` | Execution |\n| `ROS2 Context` | `context` | `ROS2 Publish Clock` | `context` | Data |\n| `Isaac Read Simulation Time` | `simulationTime` | `ROS2 Publish Clock` | `timeStamp` | Data |\n\nThe final graph must visually resemble:\n\n```mermaid\nflowchart TD\n    Tick[\"On Playback Tick\"] -.->|\"1. execution\"| Clock[\"ROS2 Publish Clock\"]\n    Context[\"ROS2 Context\"] -->|\"2. context\"| Clock\n    Time[\"Isaac Read Simulation Time\"] -->|\"3. timestamp\"| Clock\n\n```\n\n> Stop and verify: Do not continue until the graph contains all three connections shown above.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-15-0",
+    "title": "B2. Open the Action Graph editor",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: B2. Open the Action Graph editor",
+    "text": "## B2. Open the Action Graph editor\n\nOpen:\n\n```\nWindow \u2192 Graph Editors \u2192 Action Graph\n\n```\n\n![Screenshot from 2026-09-15 01-48-20](https://github.com/user-attachments/assets/37df4988-ad49-48cd-8a0b-7b8708f15aad)\n\nAn Action Graph panel should appear.\n\nClick:\n\n```\nNew Action Graph\n\n```\n\nName the graph:\n\n```\nROS_Clock\n\n```\n\nThe expected graph path is:\n\n```\n/World/ROS_Clock\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-16-0",
+    "title": "B3. Add the required nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: B3. Add the required nodes",
+    "text": "## B3. Add the required nodes\n\nIn the Action Graph node search panel, search for and add these nodes:\n\n1. `On Playback Tick`\n2. `ROS2 Context`\n3. `Isaac Read Simulation Time`\n4. `ROS2 Publish Clock`\n\n![image](https://github.com/user-attachments/assets/fb570d22-591f-4a1b-8d2e-4dc97bed4861)\n\nPlace the nodes from left to right in this order:\n\n```\nOn Playback Tick\n        \u2502\n        \u251c\u2500\u2500 Isaac Read Simulation Time\n        \u2502\n        \u2514\u2500\u2500 ROS2 Publish Clock\n\n```\n\nUse the following recommended layout. The exact pixel position is not required, but keeping the graph arranged this way makes it easier to debug.\n\n```\nLeft column                  Middle column             Right column\n\nOn Playback Tick  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25b6  ROS2 Publish Clock\n                                    \u25b2\nROS2 Context  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25b2\nIsaac Read Simulation Time \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-17-0",
+    "title": "B4. Configure the ROS2 Context node",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: B4. Configure the ROS2 Context node",
+    "text": "## B4. Configure the ROS2 Context node\n\n```\nROS2 Context\n\n```\n\nIn the Property panel, configure:\n\n```\nDomain ID = 0\nUse Domain ID Environment Variable = Disabled\n\n```\n\nIf the field is named `useDomainIDEnvVar`, set it to:\n\n```\nFalse\n\n```\n\n![Screenshot from 2026-09-16 01-42-09](https://github.com/user-attachments/assets/60a2247b-456f-42ae-b242-29f23dbe1c7e)\n\nThe ROS2 Context node must provide its context output to the ROS2 Publish Clock node.\n\n```\nROS2 Context.outputs:context\n    \u2192\nROS2 Publish Clock.inputs:context\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-18-0",
+    "title": "B5. Configure Isaac Read Simulation Time",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: B5. Configure Isaac Read Simulation Time",
+    "text": "## B5. Configure Isaac Read Simulation Time\n\n```\nIsaac Read Simulation Time\n\n```\n\nUse simulation time.\n\nIf the node contains a property named:\n\n```\nresetOnStop\n\n```\n\nset it to:\n\n```\nFalse\n\n```\n\n![Screenshot from 2026-09-16 01-42-41](https://github.com/user-attachments/assets/1854ebc1-f635-4710-ac22-73aad3ac8827)\n\nLeave reference time numerator and denominator at their default values.\n\nThe output should be:\n\n```\nsimulationTime\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-19-0",
+    "title": "B6. Configure the ROS2 Publish Clock node",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: B6. Configure the ROS2 Publish Clock node",
+    "text": "## B6. Configure the ROS2 Publish Clock node\n\n```\nROS2 Publish Clock\n\n```\n\n```\nTopic Name = /clock\nQueue Size = 10\n\n```\n\n![Screenshot from 2026-09-16 01-44-49](https://github.com/user-attachments/assets/57fe4ca8-f4ca-46b2-b01a-52c2849bff88)\n\nIf `qosProfile` is available, leave it at its default value.\n\n```\nOn Playback Tick.outputs:tick\n    \u2192\nROS2 Publish Clock.inputs:execIn\n\n```\n\n```\nIsaac Read Simulation Time.outputs:simulationTime\n    \u2192\nROS2 Publish Clock.inputs:timeStamp\n\n```\n\nThe final connections must include:\n\n```\nOn Playback Tick.tick\n    \u2192 ROS2 Publish Clock.execIn\n\nROS2 Context.context\n    \u2192 ROS2 Publish Clock.context\n\nIsaac Read Simulation Time.simulationTime\n    \u2192 ROS2 Publish Clock.timeStamp\n\n```\n\n![011_ROS_Clock](https://github.com/user-attachments/assets/99e9b5b6-f4c5-4aa9-a58a-ecba57f7fb9f)\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-20-0",
+    "title": "B7. Test `/clock`",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: B7. Test `/clock`",
+    "text": "## B7. Test `/clock`\n\nPress Play in Isaac Sim.\n\nOpen a separate terminal and run:\n\n```\nsource /opt/ros/humble/setup.bash\nexport ROS_DOMAIN_ID=0\nros2 topic list | grep clock\n\n```\n\n```\n/clock\n\n```\n\nNow run:\n\n```\nros2 topic echo /clock --once\n\n```\n\nExpected output contains:\n\n```\nclock:\n  sec: ...\n  nanosec: ...\n\n```\n\nCheck the publishing rate:\n\n```\nros2 topic hz /clock\n\n```\n\nThe rate should be greater than zero. ![Screenshot from 2026-09-16 01-49-44](https://github.com/user-attachments/assets/70f0e701-7948-4a03-ae00-cb66f9decc81)\n\nPress Ctrl+C to stop `ros2 topic hz`.\n\nIf `/clock` does not appear:\n\n1. Confirm Isaac Sim is playing.\n2. Confirm the graph path is `/World/ROS_Clock`.\n3. Confirm the ROS2 Context is connected.\n4. Confirm `On Playback Tick.tick` is connected to `ROS2 Publish Clock.execIn`.\n5. Confirm the topic name is exactly `/clock`.\n6. Confirm the terminal sourced ROS2 Humble.\n\n### Validation checkpoint B\n\nThe following command must succeed:\n\n```\nros2 topic echo /clock --once\n\n```\n\n#### Evidence to Capture\n\nTake one screenshot showing:\n\n- The complete `ROS_Clock` Action Graph.\n- All four nodes.\n- All three connections.\n- The Property panel for `ROS2 Publish Clock`.\n- The topic name `/clock`.\n\nThe screenshot must be readable. Do not submit a screenshot in which the node names or wires cannot be read. ![image](https://github.com/user-attachments/assets/721de5c9-d4d9-49c8",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-20-1400",
+    "title": "B7. Test `/clock`",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: B7. Test `/clock`",
+    "text": "-89e8-421419db905f)\n\nSave the stage as:\n\n```\n~/RAS545/Lab3/work/Lab3_01_ros_clock.usda\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-21-0",
+    "title": "Objective",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Objective",
+    "text": "## Objective\n\nYou will create a ROS2 subscriber for:\n\n```\n/cmd_vel\n\n```\n\nThe subscriber will receive:\n\n```\ngeometry_msgs/msg/Twist\n\n```\n\nThe command will be converted into wheel velocities using a differential-drive controller.\n\nThe required signal flow is:\n\n```mermaid\nflowchart TD\n    Cmd[\"/cmd_vel<br/>geometry_msgs/msg/Twist\"]\n    Sub[\"ROS2 Subscribe Twist\"]\n    Linear[\"linearVelocity\"]\n    Angular[\"angularVelocity\"]\n    Scale[\"Scale To/From Stage Units\"]\n    BreakLinear[\"Break 3 Vector<br/>linear\"]\n    BreakAngular[\"Break 3 Vector<br/>angular\"]\n    Diff[\"Differential Controller\"]\n    Array[\"Make Array<br/>wheel joint names\"]\n    Art[\"Articulation Controller\"]\n    Wheels[\"wheel_left_joint<br/>wheel_right_joint\"]\n\n    Cmd --> Sub\n    Sub -->|\"linearVelocity\"| Scale\n    Scale --> BreakLinear\n    BreakLinear -->|\"x\"| Diff\n    Sub -->|\"angularVelocity\"| BreakAngular\n    BreakAngular -->|\"z\"| Diff\n    Diff -->|\"velocityCommand\"| Art\n    Array -->|\"jointNames\"| Art\n    Art --> Wheels\n\n```\n\nThe graph also requires an execution signal:\n\n```mermaid\nflowchart TD\n    Tick[\"On Playback Tick\"] -.->|\"execIn\"| Sub[\"ROS2 Subscribe Twist\"]\n    Tick -.->|\"execIn\"| Diff[\"Differential Controller\"]\n    Tick -.->|\"execIn\"| Art[\"Articulation Controller\"]\n\n```\n\nThe first diagram shows data flow. The second diagram shows execution flow.\n\nBoth diagrams are required.\n\nThe differential-drive parameters ",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-21-1400",
+    "title": "Objective",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Objective",
+    "text": "are:\n\n```\nMaximum linear speed = 0.22 m/s\nMaximum angular speed = 1.0 rad/s\nWheel distance = 0.16 m\nWheel radius = 0.025 m\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-22-0",
+    "title": "C1. Select the robot root",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C1. Select the robot root",
+    "text": "## C1. Select the robot root\n\nIn the Stage panel, select:\n\n```\nturtlebot3_burger\n\n```\n\nDo not select `base_link` or a wheel link.\n\nThe graph will be created below:\n\n```\n/turtlebot3_burger\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-23-0",
+    "title": "C2. Create the drive graph",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C2. Create the drive graph",
+    "text": "## C2. Create the drive graph\n\n```\nWindow \u2192 Graph Editors \u2192 Action Graph\n\n```\n\n```\nNew Action Graph\n\n```\n\nName the graph:\n\n```\nROS_Drive\n\n```\n\nThe expected graph path is:\n\n```\n/turtlebot3_burger/ROS_Drive\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-24-0",
+    "title": "C3. Add the graph nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C3. Add the graph nodes",
+    "text": "## C3. Add the graph nodes\n\nAdd the following nodes:\n\n1. `On Playback Tick`\n2. `ROS2 Context`\n3. `ROS2 Subscribe Twist`\n4. `Scale To/From Stage Units`\n5. `Break 3 Vector`\n6. `Break 3 Vector`\n7. `Differential Controller`\n8. `Constant Token`\n9. `Constant Token`\n10. `Make Array`\n11. `Articulation Controller`\n\n> Version note: Search for `Make Array`. If your Isaac Sim installation displays the equivalent node as `Construct Array`, use that node but rename the node instance to `make_array` so that all port references remain consistent.\n\nRename the nodes so they are easy to identify:\n\n```\nscale_linear_velocity\nbreak_linear_velocity\nbreak_angular_velocity\nconstant_left_joint\nconstant_right_joint\n\n```\n\nIf Isaac Sim automatically assigns different names, that is acceptable. The node types and properties must be correct.\n\n### Drive Graph Connection Table\n\n![image](https://github.com/user-attachments/assets/375a5783-b805-4cb1-9e07-ba762730b839)\n\nConnect one row at a time. After each connection, verify that the wire remains attached to the correct port.\n\n| Step | Source node | Output port | Destination node | Input port |\n| --- | --- | --- | --- | --- |\n| 1 | `on_playback_tick` | `outputs:tick` | `ros2_subscribe_twist` | `inputs:execIn` |\n| 2 | `on_playback_tick` | `outputs:tick` | `differential_controller` | `inputs:execIn` |\n| 3 | `on_playback_tick` | `outputs:tick` | `articulation_contr",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-24-1400",
+    "title": "C3. Add the graph nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C3. Add the graph nodes",
+    "text": "oller` | `inputs:execIn` |\n| 4 | `ros2_context` | `outputs:context` | `ros2_subscribe_twist` | `inputs:context` |\n| 5 | `ros2_subscribe_twist` | `outputs:linearVelocity` | `scale_linear_velocity` | `inputs:value` |\n| 6 | `scale_linear_velocity` | `outputs:result` | `break_linear_velocity` | `inputs:vector` |\n| 7 | `break_linear_velocity` | `outputs:x` | `differential_controller` | `inputs:linearVelocity` |\n| 8 | `ros2_subscribe_twist` | `outputs:angularVelocity` | `break_angular_velocity` | `inputs:vector` |\n| 9 | `break_angular_velocity` | `outputs:z` | `differential_controller` | `inputs:angularVelocity` |\n| 10 | `differential_controller` | `outputs:velocityCommand` | `articulation_controller` | `inputs:velocityCommand` |\n| 11 | `constant_left_joint` | `outputs:value` | `make_array` | `inputs:input0` |\n| 12 | `constant_right_joint` | `outputs:value` | `make_array` | `inputs:input1` |\n| 13 | `make_array` | `outputs:array` | `articulation_controller` | `inputs:jointNames` |\n\n> Common error: Connect `angularVelocity.z`, not `angularVelocity.x` or `angularVelocity.y`.\n\n> Common error: Connect `linearVelocity.x`, not the entire three-dimensional vector.\n\n> Common error: The wheel order must be `wheel_left_joint` followed by `wheel_right_joint`.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-25-0",
+    "title": "C4. Configure the ROS2 Context",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C4. Configure the ROS2 Context",
+    "text": "## C4. Configure the ROS2 Context\n\nSelect the ROS2 Context node.\n\nSet:\n\n```\nDomain ID = 0\nUse Domain ID Environment Variable = Disabled\n\n```\n\nConnect:\n\n```\nROS2 Context.outputs:context\n    \u2192\nROS2 Subscribe Twist.inputs:context\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-26-0",
+    "title": "C5. Configure the Twist subscriber",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C5. Configure the Twist subscriber",
+    "text": "## C5. Configure the Twist subscriber\n\nSelect:\n\n```\nROS2 Subscribe Twist\n\n```\n\n```\nTopic Name = /cmd_vel\nQueue Size = 10\n\n```\n\nIf `qosProfile` is available, leave it at the default value.\n\nThe node must subscribe to:\n\n```\ngeometry_msgs/msg/Twist\n\n```\n\nThe node produces:\n\n```\nlinearVelocity\nangularVelocity\n\n```\n\n```\nOn Playback Tick.outputs:tick\n    \u2192\nROS2 Subscribe Twist.inputs:execIn\n\n```\n\nDo not connect the subscriber execution output to the differential controller execution input. The differential controller must execute every simulation frame.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-27-0",
+    "title": "C6. Configure the linear velocity conversion",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C6. Configure the linear velocity conversion",
+    "text": "## C6. Configure the linear velocity conversion\n\nSelect the first `Break 3 Vector` node and rename it:\n\n```\nbreak_linear_velocity\n\n```\n\nConnect:\n\n```\nROS2 Subscribe Twist.outputs:linearVelocity\n    \u2192\nScale To/From Stage Units.inputs:value\n\n```\n\nSet the scale node conversion to:\n\n```\nConvert to stage units\n\n```\n\nConnect:\n\n```\nScale To/From Stage Units.outputs:result\n    \u2192\nbreak_linear_velocity.inputs:tuple\n\n```\n\nThe `break_linear_velocity` node produces:\n\n```\nx\ny\nz\n\n```\n\nConnect the X component:\n\n```\nbreak_linear_velocity.outputs:x\n    \u2192\nDifferential Controller.inputs:linearVelocity\n\n```\n\nDo not use the Y or Z components.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-28-0",
+    "title": "C7. Configure angular velocity",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C7. Configure angular velocity",
+    "text": "## C7. Configure angular velocity\n\nSelect the second `Break 3 Vector` node and rename it:\n\n```\nbreak_angular_velocity\n\n```\n\nConnect:\n\n```\nROS2 Subscribe Twist.outputs:angularVelocity\n    \u2192\nbreak_angular_velocity.inputs:tuple\n\n```\n\nThe node produces:\n\n```\nx\ny\nz\n\n```\n\nConnect the Z component:\n\n```\nbreak_angular_velocity.outputs:z\n    \u2192\nDifferential Controller.inputs:angularVelocity\n\n```\n\nDo not use the X or Y components.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-29-0",
+    "title": "C8. Configure the Differential Controller",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C8. Configure the Differential Controller",
+    "text": "## C8. Configure the Differential Controller\n\n```\nDifferential Controller\n\n```\n\nSet the following values:\n\n```\nMax Linear Speed = 0.22\nMax Angular Speed = 1.0\nWheel Distance = 0.16\nWheel Radius = 0.025\n\n```\n\nLeave the following values at their defaults unless your instructor provides different values:\n\n```\nMax Acceleration\nMax Deceleration\nMax Angular Acceleration\nMax Wheel Speed\n\n```\n\n```\nOn Playback Tick.outputs:tick\n    \u2192\nDifferential Controller.inputs:execIn\n\n```\n\nThe differential controller produces:\n\n```\nvelocityCommand\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-30-0",
+    "title": "C9. Configure the wheel joint names",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C9. Configure the wheel joint names",
+    "text": "## C9. Configure the wheel joint names\n\nSelect the first Constant Token node.\n\n```\nValue = wheel_left_joint\n\n```\n\nSelect the second Constant Token node.\n\n```\nValue = wheel_right_joint\n\n```\n\nThe order is important:\n\n```\nIndex 0: wheel_left_joint\nIndex 1: wheel_right_joint\n\n```\n\n```\nconstant_left_joint.outputs:value\n    \u2192\nmake_array.inputs:input0\n\n```\n\n```\nconstant_right_joint.outputs:value\n    \u2192\nmake_array.inputs:input1\n\n```\n\n```\nMake Array\n\n```\n\n```\nArray Size = 2\nArray Type = token[]\n\n```\n\n```\nmake_array.outputs:array\n    \u2192\narticulation_controller.inputs:jointNames\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-31-0",
+    "title": "C10. Configure the Articulation Controller",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C10. Configure the Articulation Controller",
+    "text": "## C10. Configure the Articulation Controller\n\n```\nArticulation Controller\n\n```\n\nSet the target prim to:\n\n```\n/turtlebot3_burger/base_footprint\n\n```\n\nIf the Property panel provides a prim picker:\n\n1. Click the picker icon.\n2. Select `/turtlebot3_burger/base_footprint` in the Stage panel.\n3. Confirm the selected target.\n\n```\nOn Playback Tick.outputs:tick\n    \u2192\nArticulation Controller.inputs:execIn\n\n```\n\n```\nDifferential Controller.outputs:velocityCommand\n    \u2192\nArticulation Controller.inputs:velocityCommand\n\n```\n\nThe final drive graph must contain these connections:\n\n```mermaid\nflowchart TD\n    Tick[\"On Playback Tick\"] -.->|\"execIn\"| Sub[\"ROS2 Subscribe Twist\"]\n    Tick -.->|\"execIn\"| Diff[\"Differential Controller\"]\n    Tick -.->|\"execIn\"| Art[\"Articulation Controller\"]\n\n    Context[\"ROS2 Context\"] -->|\"context\"| Sub\n\n    Sub -->|\"linearVelocity\"| Scale[\"Scale To/From Stage Units\"]\n    Scale -->|\"result\"| BreakL[\"Break Linear Vector\"]\n    BreakL -->|\"x\"| Diff\n\n    Sub -->|\"angularVelocity\"| BreakA[\"Break Angular Vector\"]\n    BreakA -->|\"z\"| Diff\n\n    Diff -->|\"velocityCommand\"| Art\n\n    Left[\"Constant Token\\nwheel_left_joint\"] -->|\"value\"| Arr[\"Make Array\"]\n    Right[\"Constant Token\\nwheel_right_joint\"] -->|\"value\"| Arr\n    Arr -->|\"array\"| Art\n\n```\n\n### Final Drive Graph Appearance\n\nBefore pressing Play, compare your graph with this structure:\n\n```mermaid\nflowchart TD\n    Tick[\"",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-31-1400",
+    "title": "C10. Configure the Articulation Controller",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C10. Configure the Articulation Controller",
+    "text": "On Playback Tick\"]\n\n    Context[\"ROS2 Context\"]\n    Twist[\"ROS2 Subscribe Twist\"]\n    Scale[\"Scale To/From Stage Units\"]\n    LinearBreak[\"Break 3 Vector<br/>linear\"]\n    AngularBreak[\"Break 3 Vector<br/>angular\"]\n    Diff[\"Differential Controller\"]\n    Left[\"Constant Token<br/>wheel_left_joint\"]\n    Right[\"Constant Token<br/>wheel_right_joint\"]\n    Array[\"Make Array\"]\n    Art[\"Articulation Controller\"]\n\n    Tick -.-> Twist\n    Tick -.-> Diff\n    Tick -.-> Art\n    Context --> Twist\n\n    Twist -->|\"linearVelocity\"| Scale\n    Scale --> LinearBreak\n    LinearBreak -->|\"x\"| Diff\n\n    Twist -->|\"angularVelocity\"| AngularBreak\n    AngularBreak -->|\"z\"| Diff\n\n    Diff -->|\"velocityCommand\"| Art\n    Left --> Array\n    Right --> Array\n    Array -->|\"jointNames\"| Art\n\n```\n\n> Checkpoint: If your graph does not contain three dashed execution wires from `On Playback Tick`, stop and repair the graph before testing.\n\nPress Play in Isaac Sim. ![image](https://github.com/user-attachments/assets/e1569838-0a38-40c5-a841-cf48bb178c50)\n\nIn a sourced terminal, verify that the command topic exists:\n\n```\nsource /opt/ros/humble/setup.bash\nexport ROS_DOMAIN_ID=0\nros2 topic list | grep cmd_vel\n\n```\n\n```\n/cmd_vel\n\n```\n\nSend a slow forward command:\n\n```\nros2 topic pub --rate 5 /cmd_vel geometry_msgs/msg/Twist \\\n\"{linear: {x: 0.10, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}\"\n\n```\n\nThe robot should m",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-31-2800",
+    "title": "C10. Configure the Articulation Controller",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: C10. Configure the Articulation Controller",
+    "text": "ove forward slowly.\n\n```\nCtrl+C\n\n```\n\nImmediately send a zero command:\n\n```\nros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \\\n\"{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}\"\n\n```\n\n```\nros2 topic pub --rate 5 /cmd_vel geometry_msgs/msg/Twist \\\n\"{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.5}}\"\n\n```\n\nThe robot should rotate counterclockwise.\n\n```\nCtrl+C\n\n```\n\nSend another zero command.\n\n```",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-32-0",
+    "title": "F13. Test keyboard teleoperation",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: F13. Test keyboard teleoperation",
+    "text": "## F13. Test keyboard teleoperation\n\nInstall the keyboard teleoperation package:\n\n```bash\nsudo apt update\nsudo apt install -y ros-humble-teleop-twist-keyboard\n\n```\n\nOpen a new terminal and source ROS 2:\n\n```\nsource /opt/ros/humble/setup.bash\nexport ROS_DOMAIN_ID=0\n\n```\n\n```\nros2 topic list | grep cmd_vel\n\n```\n\n```\n/cmd_vel\n\n```\n\nVerify that Isaac Sim is subscribed:\n\n```\nros2 topic info /cmd_vel -v\n\n```\n\nThe output should show at least one subscriber.\n\nMake sure Isaac Sim is open and the simulation is playing.\n\n```\nros2 run teleop_twist_keyboard teleop_twist_keyboard \\\n--ros-args -r cmd_vel:=/cmd_vel\n\n```\n\n```\n        u    i    o\n        j    k    l\n        m    ,    .\n\n```\n\n```\ni = move forward\n, = move backward\nj = rotate counterclockwise\nl = rotate clockwise\nu = move forward and rotate counterclockwise\no = move forward and rotate clockwise\nm = move backward and rotate counterclockwise\n. = move backward and rotate clockwise\nk = stop\nq = increase speed\nz = decrease speed\n\n```\n\nThe robot should respond to the keyboard commands.\n\nTo stop the robot immediately:\n\n```\nPress k\n\n```\n\n```\nCtrl+C\n\n```\n\nSend a final zero-velocity command:\n\n```\nros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \\\n\"{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}\"\n\n```\n\nThe robot must stop moving before continuing.\n\n### Drive troubleshooting\n\nIf the robot does not move, check:\n\n```",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-32-1400",
+    "title": "F13. Test keyboard teleoperation",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: F13. Test keyboard teleoperation",
+    "text": "\nTopic name = /cmd_vel\nMessage type = geometry_msgs/msg/Twist\nTarget prim = /turtlebot3_burger/base_footprint\nLeft joint = wheel_left_joint\nRight joint = wheel_right_joint\nWheel distance = 0.16\nWheel radius = 0.025\n\n```\n\nIf the robot moves backward:\n\n- Check the sign of the linear velocity.\n- Check the wheel joint order.\n- Check the wheel joint axis.\n- Check whether the left and right joint names were reversed.\n\nIf the robot spins while commanded forward:\n\n- Check the wheel joint order.\n- Check the wheel radius.\n- Check the wheel distance.\n- Check the wheel joint orientations.\n\n### Validation checkpoint C\n\nThe robot must:\n\n- Move forward using `/cmd_vel`.\n- Stop when a zero command is sent.\n- Rotate using angular velocity.\n- Remain physically stable.\n\n#### Evidence to Capture\n\nTake one screenshot showing:\n\n- The complete `ROS_Drive` graph.\n- The three dashed execution connections from `On Playback Tick`.\n- The `Differential Controller`.\n- The `Articulation Controller`.\n- The two wheel joint names.\n- The Property panel showing:\n\n- `Max Linear Speed = 0.22`\n- `Max Angular Speed = 1.0`\n- `Wheel Distance = 0.16`\n- `Wheel Radius = 0.025`\n\nSave the stage as:\n\n```\n~/RAS545/Lab3/work/Lab3_02_ros_drive.usda\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-33-0",
+    "title": "Objective",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Objective",
+    "text": "## Objective\n\nYou will add a 2D RTX lidar sensor and publish:\n\n```\n/scan\n\n```\n\nThe ROS message type must be:\n\n```\nsensor_msgs/msg/LaserScan\n\n```\n\nThe sensor frame will be:\n\n```\nbase_scan\n\n```\n\nThe official Isaac Sim RTX lidar tutorial is available at:\n\nIsaac Sim 6.0.1 RTX Lidar Sensors\n\n```mermaid\nflowchart TD\n    Tick[\"On Playback Tick\"] -.->|\"exec\"| Run[\"Isaac Run One Simulation Frame\"]\n    Run -->|\"step\"| Product[\"Isaac Create Render Product\"]\n    Lidar[\"Lidar2D<br/>/turtlebot3_burger/base_scan/Lidar2D\"] -->|\"cameraPrim\"| Product\n    Product -->|\"renderProductPath\"| Helper[\"ROS2 RTX Lidar Helper\"]\n    Context[\"ROS2 Context\"] -->|\"context\"| Helper\n    Product -->|\"execOut\"| Helper\n    Helper -->|\"/scan\"| Scan[\"sensor_msgs/msg/LaserScan\"]\n\n```\n\n```\nType = laser_scan\nTopic Name = /scan\nFrame ID = base_scan\nEnabled = True\nQueue Size = 10\n\n```\n\nIf the helper exposes a `Use System Time` property, leave it disabled unless the instructor explicitly instructs otherwise.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-35-0",
+    "title": "D2. Select the lidar mounting link",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D2. Select the lidar mounting link",
+    "text": "## D2. Select the lidar mounting link\n\nIn the Stage panel, select:\n\n```\n/turtlebot3_burger/base_scan\n\n```\n\nThis link is already part of the TurtleBot model.\n\nThe existing `base_scan` link has approximately:\n\n```\nTranslation relative to base_link:\nX = -0.032 m\nY = 0.000 m\nZ = 0.182 m\n\nRotation:\nX = 0 degrees\nY = 0 degrees\nZ = 0 degrees\n\n```\n\nDo not change the `base_scan` link transform.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-36-0",
+    "title": "D3. Create the RTX lidar",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D3. Create the RTX lidar",
+    "text": "## D3. Create the RTX lidar\n\nUse the Isaac Sim menu:\n\n```\nCreate \u2192 Issac \u2192 Sensors \u2192 RTX Lidar \u2192 NVIDIA \u2192 Example Rotary 2D\n\n```\n\n![Screenshot from 2026-09-18 23-10-37](https://github.com/user-attachments/assets/c6172ffd-c605-4ec6-80a7-85afef4152e1)\n\nA new lidar prim will be created.\n\nRename the new sensor:\n\n```\nLidar2D\n\n```\n\nMove or reparent the sensor under:\n\n```\n/turtlebot3_burger/base_scan\n\n```\n\nThe final sensor path must be:\n\n```\n/turtlebot3_burger/base_scan/Lidar2D\n\n```\n\nIf Isaac Sim initially creates the sensor under `/World`, drag it in the Stage panel onto:\n\n```\nbase_scan\n\n```\n\n![Screenshot from 2026-09-18 23-07-50](https://github.com/user-attachments/assets/7bc711d8-25f1-42dc-8096-bb70e1ac0bb9)\n\nWhen Isaac Sim asks whether to reparent the prim, accept the operation.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-37-0",
+    "title": "D4. Configure the lidar transform",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D4. Configure the lidar transform",
+    "text": "## D4. Configure the lidar transform\n\n```\n/turtlebot3_burger/base_scan/Lidar2D\n\n```\n\nIn the Property panel, open the Transform section.\n\nSet the sensor transform relative to `base_scan`:\n\n```\nTranslation:\nX = 0.000 m\nY = 0.000 m\nZ = 0.000 m\n\nRotation:\nX = 0 degrees\nY = 0 degrees\nZ = 0 degrees\n\nScale:\nX = 1\nY = 1\nZ = 1\n\n```\n\n![image](https://github.com/user-attachments/assets/7a74a4da-e895-4d7e-9593-6f19441290af)\n\nThe sensor should overlap the visual lidar housing.\n\nDo not use a second lidar.\n\n```\nExample_Rotary_2D\n\n```\n\nas an additional sensor.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-38-0",
+    "title": "D5. Configure lidar rate",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D5. Configure lidar rate",
+    "text": "## D5. Configure lidar rate\n\n```\n/turtlebot3_burger/base_scan/Lidar2D\n\n```\n\nIn the Property panel, search for:\n\n```\ntickRate\n\n```\n\n```\nomni:sensor:tickRate = 10 Hz\n\n```\n\n![image](https://github.com/user-attachments/assets/15c12bdd-b41c-42cb-a6a5-1067d8f3e600)\n\nIf the sensor exposes a scan-rate property, set:\n\n```\nscanRateBaseHz = 10 Hz\n\n```\n\nThe tick rate and scan rate should match.\n\nIn Isaac Sim 6.0, the sensor tick rate controls the publish rate. The older `frameSkipCount` setting should not be used as the primary rate control.\n\n### Lidar Sensor and Lidar Graph Are Different Objects\n\nThe lidar system contains two separate parts:\n\n1. The physical or simulated sensor prim.\n2. The ROS2 Action Graph that publishes the sensor data.\n\n```mermaid\nflowchart TD\n    Sensor[\"/turtlebot3_burger/base_scan/Lidar2D\"]\n    Product[\"Isaac Create Render Product\"]\n    Helper[\"ROS2 RTX Lidar Helper\"]\n    Topic[\"/scan\"]\n    Frame[\"frame_id: base_scan\"]\n\n    Sensor -->|\"cameraPrim\"| Product\n    Product -->|\"renderProductPath\"| Helper\n    Helper --> Topic\n    Helper --> Frame\n\n```\n\nDo not confuse:\n\n```\n/turtlebot3_burger/base_scan/Lidar2D\n\n```\n\nwith:\n\n```\n/turtlebot3_burger/base_scan/Lidar2D/ROS_Lidar2D\n\n```\n\nThe first is the sensor. The second is the Action Graph.\n\nSelect the lidar prim:\n\n```\n/turtlebot3_burger/base_scan/Lidar2D\n\n```\n\nOpen:\n\n```\nWindow \u2192 Graph Editors \u2192 Action Graph\n\n```\n\nClick:\n\n``",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-38-1400",
+    "title": "D5. Configure lidar rate",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D5. Configure lidar rate",
+    "text": "`\nNew Action Graph\n\n```\n\nName it:\n\n```\nROS_Lidar2D\n\n```\n\nThe expected graph path is:\n\n```\n/turtlebot3_burger/base_scan/Lidar2D/ROS_Lidar2D\n\n```\n\n![image](https://github.com/user-attachments/assets/8a102fca-602d-4a8a-a90b-0d39f647c0dd)\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-39-0",
+    "title": "D7. Add lidar graph nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D7. Add lidar graph nodes",
+    "text": "## D7. Add lidar graph nodes\n\nAdd:\n\n1. `On Playback Tick`\n2. `ROS2 Context`\n3. `Isaac Run One Simulation Frame`\n4. `Isaac Create Render Product`\n5. `ROS2 RTX Lidar Helper`\n\nArrange them:\n\n```\nOn Playback Tick\n        \u2193\nIsaac Run One Simulation Frame\n        \u2193\nIsaac Create Render Product\n        \u2193\nROS2 RTX Lidar Helper\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-40-0",
+    "title": "D8. Configure the lidar graph",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D8. Configure the lidar graph",
+    "text": "## D8. Configure the lidar graph\n\nConfigure the ROS2 Context:\n\n```\nDomain ID = 0\nUse Domain ID Environment Variable = Disabled\n\n```\n\nConfigure `Isaac Create Render Product`:\n\n```\nCamera Prim = /turtlebot3_burger/base_scan/Lidar2D\nEnabled = True\n\n```\n\n![image](https://github.com/user-attachments/assets/5f01d044-360b-4920-a83e-d64ad690a82c)\n\nIf width and height fields are visible, use:\n\n```\nWidth = 640\nHeight = 480\n\n```\n\n![Screenshot from 2026-09-18 23-22-24](https://github.com/user-attachments/assets/bb3a9f99-3b81-4368-bace-81c7efa76be8)\n\nThe exact resolution is not used by the LaserScan message, but these values provide a predictable render-product configuration.\n\nConfigure `ROS2 RTX Lidar Helper`:\n\n```\nType = laser_scan\nTopic Name = /scan\nFrame ID = base_scan\nEnabled = True\n\n```\n\nIf the helper exposes a `Use System Time` property, leave it disabled unless told otherwise.\n\nIf `qosProfile` is available, leave it at the default value.\n\n```\nQueue Size = 10\n\n```\n\n```\nFrame Skip Count\n\n```\n\nat its default value.\n\n```\nOn Playback Tick.outputs:tick\n    \u2192\nIsaac Run One Simulation Frame.inputs:execIn\n\n```\n\n```\nIsaac Run One Simulation Frame.outputs:step\n    \u2192\nIsaac Create Render Product.inputs:execIn\n\n```\n\n```\nIsaac Create Render Product.outputs:execOut\n    \u2192\nROS2 RTX Lidar Helper.inputs:execIn\n\n```\n\n```\nIsaac Create Render Product.outputs:renderProductPath\n    \u2192\nROS2 RTX Lidar Helper.i",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-40-1400",
+    "title": "D8. Configure the lidar graph",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D8. Configure the lidar graph",
+    "text": "nputs:renderProductPath\n\n```\n\n```\nROS2 Context.outputs:context\n    \u2192\nROS2 RTX Lidar Helper.inputs:context\n\n```\n\nSet the render product camera prim exactly to:\n\n```\n/turtlebot3_burger/base_scan/Lidar2D\n\n```\n\n![image](https://github.com/user-attachments/assets/67885264-7321-4650-97c0-d2ac92e29d01)\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-41-0",
+    "title": "D9. Test `/scan`",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D9. Test `/scan`",
+    "text": "## D9. Test `/scan`\n\nPress Play.\n\nIn a sourced terminal, run:\n\n```\nsource /opt/ros/humble/setup.bash\nexport ROS_DOMAIN_ID=0\nros2 topic list | grep scan\n\n```\n\n```\n/scan\n\n```\n\nCheck the message type:\n\n```\nros2 topic type /scan\n\n```\n\n```\nsensor_msgs/msg/LaserScan\n\n```\n\nCheck the rate:\n\n```\nros2 topic hz /scan\n\n```\n\nThe rate should be greater than zero.\n\n```\nros2 topic echo /scan --once\n\n```\n\n```\nheader.frame_id: base_scan\n\n```\n\nThe message should also contain:\n\n```\nangle_min\nangle_max\nangle_increment\nrange_min\nrange_max\nranges\n\n```\n\n![image](https://github.com/user-attachments/assets/8571e122-c8fb-4400-8070-4761cb019ced)\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-42-0",
+    "title": "D10. View the lidar in RViz2",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: D10. View the lidar in RViz2",
+    "text": "## D10. View the lidar in RViz2\n\nStart RViz2:\n\n```\nrviz2 --ros-args -p use_sim_time:=true\n\n```\n\nIn RViz2:\n\n1. Set Fixed Frame to:\n\n```\nbase_scan\n\n```\n2. Click:\n\n```\nAdd\n\n```\n3. Select:\n\n```\nLaserScan\n\n```\n\n![image](https://github.com/user-attachments/assets/7f7c835f-3d81-4d77-b6af-98207455714b)\n\n1. Set the LaserScan topic to:\n\n```\n/scan\n\n```\n2. Set the LaserScan size to:\n\n```\n0.03 m\n\n```\n3. Set the LaserScan color to a visible color.\n\nThe lidar scan should be visible around the robot.\n\nAt this stage, it is acceptable to use `base_scan` as the RViz Fixed Frame because the complete robot TF tree has not yet been created.\n\n![image](https://github.com/user-attachments/assets/30221f14-26a9-4cfc-9ab7-ff81836609d1)\n\n### Validation checkpoint D\n\nThe following commands must succeed:\n\n```\nros2 topic type /scan\nros2 topic hz /scan\nros2 topic echo /scan --once\n\n```\n\n#### Evidence to Capture\n\nTake one screenshot showing:\n\n- The `Lidar2D` prim under `base_scan`.\n- The lidar transform values.\n- The complete `ROS_Lidar2D` graph.\n- The ROS2 RTX Lidar Helper properties.\n- `/scan` visible in RViz2.\n\n![image](https://github.com/user-attachments/assets/e0a7aa39-42dc-4511-9ace-29be42d3fd59)\n\n```\n~/RAS545/Lab3/work/Lab3_03_lidar.usda\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-43-0",
+    "title": "Objective",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: Objective",
+    "text": "## Objective\n\nYou will add a camera to the TurtleBot and publish:\n\n```\n/camera/image_raw\n/camera/camera_info\n\n```\n\nThe camera frame will be:\n\n```\nCamera_1\n\n```\n\nThe official Isaac Sim camera tutorial is available at:\n\nIsaac Sim 6.0.1 ROS2 Cameras\n\n### Camera Graph Overview\n\nThe camera graph has one render-product pipeline and two ROS2 outputs.\n\n```mermaid\nflowchart TD\n    Tick[\"On Playback Tick\"] -.->|\"exec\"| Run[\"Isaac Run One Simulation Frame\"]\n    Run -->|\"step\"| Product[\"Isaac Create Render Product\"]\n    Camera[\"Camera_1<br/>/turtlebot3_burger/base_footprint/Camera_1\"] -->|\"cameraPrim\"| Product\n\n    Product -->|\"renderProductPath\"| RGB[\"ROS2 Camera Helper\"]\n    Product -->|\"renderProductPath\"| Info[\"ROS2 Camera Info Helper\"]\n\n    Context[\"ROS2 Context\"] -->|\"context\"| RGB\n    Context -->|\"context\"| Info\n\n    RGB -->|\"/camera/image_raw\"| Image[\"sensor_msgs/msg/Image\"]\n    Info -->|\"/camera/camera_info\"| CameraInfo[\"sensor_msgs/msg/CameraInfo\"]\n\n```\n\nThe camera graph must produce two independent ROS2 topics:\n\n```\n/camera/image_raw\n/camera/camera_info\n\n```\n\n> Important: The `ROS2 Camera Helper` and `ROS2 Camera Info Helper` are separate nodes. Each must receive the render-product path.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-45-0",
+    "title": "E2. Select the camera parent",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E2. Select the camera parent",
+    "text": "## E2. Select the camera parent\n\nIn the Stage panel, select:\n\n```\n/turtlebot3_burger/base_footprint\n\n```\n\nThe camera will be attached to `base_footprint`.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-46-0",
+    "title": "E3. Create the camera",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E3. Create the camera",
+    "text": "## E3. Create the camera\n\n```\nCreate \u2192 Camera\n\n```\n\nRename the camera:\n\n```\nCamera_1\n\n```\n\nReparent the camera under:\n\n```\n/turtlebot3_burger/base_footprint\n\n```\n\nThe final camera path must be:\n\n```\n/turtlebot3_burger/base_footprint/Camera_1\n\n```\n\n![image](https://github.com/user-attachments/assets/84278802-ffe9-470c-bdb3-90dfe639be01)\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-47-0",
+    "title": "E4. Configure the camera transform",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E4. Configure the camera transform",
+    "text": "## E4. Configure the camera transform\n\n```\n/turtlebot3_burger/base_footprint/Camera_1\n\n```\n\nIn the Property panel, open Transform.\n\n```\nTranslation:\nX = 0.100 m\nY = 0.000 m\nZ = 0.200 m\n\n```\n\nSet the camera rotation using the Euler rotation fields:\n\n```\nRotation X = 90 degrees\nRotation Y = 0 degrees\nRotation Z = -90 degrees\n\n```\n\n```\nScale X = 1\nScale Y = 1\nScale Z = 1\n\n```\n\n![image](https://github.com/user-attachments/assets/687c1583-6db0-487b-93b4-c53e75e29dc2)\n\nThese values orient the camera approximately forward along the robot X axis.\n\nThe equivalent USD quaternion is approximately:\n\n```\n(w, x, y, z) =\n(0.5, 0.5, -0.5, -0.5)\n\n```\n\nIf the camera is facing backward, set:\n\n```\nRotation Z = 90 degrees\n\n```\n\ninstead and verify the camera view.\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-48-0",
+    "title": "E5. Configure camera properties",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E5. Configure camera properties",
+    "text": "## E5. Configure camera properties\n\n```\nCamera_1\n\n```\n\n```\nFocal Length = 18.0 mm\nClipping Range Near = 0.01 m\nClipping Range Far = 100.0 m\n\n```\n\n![image](https://github.com/user-attachments/assets/7861adb8-3aa4-499d-a03c-15f77bb9fd4d)\n\nIf the camera exposes an aperture setting, leave the default value.\n\nIf the camera has an `OmniSensorAPI` sensor-rate property, set:\n\n```\nomni:sensor:tickRate = 10 Hz\n\n```\n\nDo not use `frameSkipCount` to define the camera rate unless specifically instructed by the teaching staff. Leave deprecated or unused rate fields at their default value and verify the actual rate using:\n\n```\nros2 topic hz /camera/image_raw\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-49-0",
+    "title": "E6. Create the camera Action Graph",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E6. Create the camera Action Graph",
+    "text": "## E6. Create the camera Action Graph\n\n```\n/turtlebot3_burger/base_footprint/Camera_1\n\n```\n\n```\nWindow \u2192 Graph Editors \u2192 Action Graph\n\n```\n\n```\nNew Action Graph\n\n```\n\n```\nROS_Camera\n\n```\n\nThe expected graph path is:\n\n```\n/turtlebot3_burger/base_footprint/Camera_1/ROS_Camera\n\n```\n\n![image](https://github.com/user-attachments/assets/64dd6620-52ac-4fc8-9808-6f75d66318cb)\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-50-0",
+    "title": "E7. Add camera graph nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E7. Add camera graph nodes",
+    "text": "## E7. Add camera graph nodes\n\n1. `On Playback Tick`\n2. `ROS2 Context`\n3. `Isaac Run One Simulation Frame`\n4. `Isaac Create Render Product`\n5. `ROS2 Camera Helper`\n6. `ROS2 Camera Info Helper`\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-51-0",
+    "title": "E8. Configure the camera nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E8. Configure the camera nodes",
+    "text": "## E8. Configure the camera nodes\n\nConfigure ROS2 Context:\n\n```\nDomain ID = 0\nUse Domain ID Environment Variable = Disabled\n\n```\n\nConfigure Isaac Create Render Product:\n\n```\nCamera Prim = /turtlebot3_burger/base_footprint/Camera_1\nEnabled = True\nWidth = 640\nHeight = 480\n\n```\n\n![image](https://github.com/user-attachments/assets/cd683ca7-7812-4f50-a6a7-263296659e8b)\n\nConfigure ROS2 Camera Helper:\n\n```\nType = rgb\nTopic Name = /camera/image_raw\nFrame ID = Camera_1\nEnabled = True\nQueue Size = 10\n\n```\n\n![image](https://github.com/user-attachments/assets/3237e56c-dde5-4313-b6dd-9fb54fbdc891)\n\nIf the helper exposes a `Use System Time` property, leave it disabled unless told otherwise.\n\nConfigure ROS2 Camera Info Helper:\n\n```\nTopic Name = /camera/camera_info\nFrame ID = Camera_1\nEnabled = True\nQueue Size = 10\n\n```\n\n![image](https://github.com/user-attachments/assets/a6972592-3255-450c-8b6b-e5dab9f87abe)\n\nIf the helper exposes a `Use System Time` property, leave it disabled unless told otherwise.\n\nIf a node contains a `frameSkipCount` field, leave it at the default value. In Isaac Sim 6.0, the sensor tick rate should be used to control the sensor rate.\n\n### Camera Graph Connection Table\n\n| Source node | Output port | Destination node | Input port |\n| --- | --- | --- | --- |\n| `On Playback Tick` | `tick` | `Isaac Run One Simulation Frame` | `execIn` |\n| `Isaac Run One Simulation Frame` | `",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-51-1400",
+    "title": "E8. Configure the camera nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E8. Configure the camera nodes",
+    "text": "step` | `Isaac Create Render Product` | `execIn` |\n| `Isaac Create Render Product` | `execOut` | `ROS2 Camera Helper` | `execIn` |\n| `Isaac Create Render Product` | `execOut` | `ROS2 Camera Info Helper` | `execIn` |\n| `Isaac Create Render Product` | `renderProductPath` | `ROS2 Camera Helper` | `renderProductPath` |\n| `Isaac Create Render Product` | `renderProductPath` | `ROS2 Camera Info Helper` | `renderProductPath` |\n| `ROS2 Context` | `context` | `ROS2 Camera Helper` | `context` |\n| `ROS2 Context` | `context` | `ROS2 Camera Info Helper` | `context` |\n\n> Checkpoint: The render-product output must connect to both camera helper nodes.\n\n![image](https://github.com/user-attachments/assets/a07756f2-5cd2-46b7-88b3-a8ed8d74f2c6)\n\n```\nOn Playback Tick.outputs:tick\n    \u2192\nIsaac Run One Simulation Frame.inputs:execIn\n\n```\n\n```\nIsaac Run One Simulation Frame.outputs:step\n    \u2192\nIsaac Create Render Product.inputs:execIn\n\n```\n\nConnect:\n\n```\nIsaac Create Render Product.outputs:execOut\n    \u2192\nROS2 Camera Helper.inputs:execIn\n\n```\n\nConnect:\n\n```\nIsaac Create Render Product.outputs:execOut\n    \u2192\nROS2 Camera Info Helper.inputs:execIn\n\n```\n\nConnect:\n\n```\nIsaac Create Render Product.outputs:renderProductPath\n    \u2192\nROS2 Camera Helper.inputs:renderProductPath\n\n```\n\nConnect:\n\n```\nIsaac Create Render Product.outputs:renderProductPath\n    \u2192\nROS2 Camera Info Helper.inputs:renderProductPath\n\n```\n\nConnect:",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-51-2800",
+    "title": "E8. Configure the camera nodes",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E8. Configure the camera nodes",
+    "text": "\n\n```\nROS2 Context.outputs:context\n    \u2192\nROS2 Camera Helper.inputs:context\n\n```\n\nConnect:\n\n```\nROS2 Context.outputs:context\n    \u2192\nROS2 Camera Info Helper.inputs:context\n\n```\n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "lab-52-0",
+    "title": "E10. Test camera topics",
+    "topic": "ROS 2 & Isaac Sim",
+    "location": "Section: E10. Test camera topics",
+    "text": "## E10. Test camera topics\n\nPress Play.\n\nIn a sourced terminal, run:\n\n```\nsource /opt/ros/humble/setup.bash\nexport ROS_DOMAIN_ID=0\nros2 topic list | grep camera\n\n```\n\nExpected output includes:\n\n```\n/camera/image_raw\n/camera/camera_info\n\n```\n\nCheck the image message type:\n\n```\nros2 topic type /camera/image_raw\n\n```\n\nExpected:\n\n```\nsensor_msgs/msg/Image\n\n```\n\nCheck the camera information message type:\n\n```\nros2 \n",
+    "url": "https://tatwik19.github.io/labs/lab-03-isaac-sim/",
+    "kind": "web"
+  },
+  {
+    "id": "play-0",
+    "title": "Playbook: BACK TO DASHBOARD",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / BACK TO DASHBOARD",
+    "text": "BACK TO DASHBOARD\nCHAPTER 01\nTHE SPARK OF LIFE! \u26a1\n\nWelcome to the world of robotics! Today, we're going to bring our first circuit to life. We'll learn how to make an LED blink using an Arduino. It's the \"Hello World\" of hardware!\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play-1",
+    "title": "Playbook: BASIC PRINCIPLES",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / BASIC PRINCIPLES",
+    "text": "BASIC PRINCIPLES\n\nBefore we build, we need to understand the big three: Voltage, Current, and Resistance.\n\n\ud83d\udd0b\nVoltage (V)\nThink of it as the \"push\" or pressure that makes electricity flow. Measured in Volts.\n\ud83c\udf0a\nCurrent (I)\nThe actual flow of tiny electrons moving through the wires. Measured in Amps.\n\ud83e\uddf1\nResistance (R)\nObstacles that slow down the current. Keeps things from blowing up! Measured in Ohms (\u03a9).",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play-3",
+    "title": "Playbook: LED",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / LED",
+    "text": "LED\n\nLight Emitting Diode. It glows when current passes through!\n\n220\u03a9 Resistor\n\nLimits the flow of electricity so the LED doesn't pop.\n\nBreadboard & Wires\n\nFor plugging things in without messy soldering.\n\n\ud83e\uddee",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play-4",
+    "title": "Playbook: MATH & PHYSICS",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / MATH & PHYSICS",
+    "text": "MATH & PHYSICS\nV=IR\nOhm's Law\n\nOhm's Law is the most important formula in electronics. It connects Voltage, Current, and Resistance.\n\nV = I \u00d7 R\n\nVoltage = Current \u00d7 Resistance\n\nWhy a 220\u03a9 Resistor?\n\nOur Arduino supplies 5V. A typical red LED needs about 2V and likes a current of 0.02A (20mA).\n\nR = (Supply Voltage - LED Voltage) / Current\nR = (5V - 2V) / 0.02A\nR = 3V / 0.02A\nR = 150 Ohms\n\nWe use 220\u03a9 because it's a common standard size and provides a safe buffer!\n\n\ud83d\udd0c",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play-5",
+    "title": "Playbook: THE WIRING DIAGRAM",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / THE WIRING DIAGRAM",
+    "text": "THE WIRING DIAGRAM\n\nFollow these steps carefully!\n\nConnect a jumper wire from Arduino GND to the negative (-) rail of the breadboard.\nPlace the LED on the breadboard. Note: The longer leg is Positive (Anode), the shorter is Negative (Cathode).\nConnect the 220\u03a9 Resistor from the negative (-) rail to the shorter leg of the LED.\nConnect a jumper wire from Arduino Pin 13 to the longer leg of the LED.",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play-9",
+    "title": "Playbook: BUILD WITH BLOCKS OR AI",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / BUILD WITH BLOCKS OR AI",
+    "text": "BUILD WITH BLOCKS OR AI\n\nWant to drag-and-drop your code or let AI help you write it? You can design your own logic without typing!\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play-11",
+    "title": "Playbook: BLINK.INO",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / BLINK.INO",
+    "text": "BLINK.INO\nRUN / UPLOAD\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n// Setup runs once when you power on the Arduinovoid setup() {// Tell Pin 13 to act as an OUTPUT (sending electricity out)pinMode(13, OUTPUT);}// Loop runs over and over forevervoid loop() {// Turn LED ON (HIGH = full voltage)digitalWrite(13, HIGH);// Wait for 1000 milliseconds (1 full second)delay(1000);// Turn LED OFF (LOW = 0 voltage)digitalWrite(13, LOW);// Wait another second before repeatingdelay(1000);}",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play-13",
+    "title": "Playbook: YOUR TURN! (EXERCISES)",
+    "topic": "Circuits & Arduino",
+    "location": "Chapter 1 / YOUR TURN! (EXERCISES)",
+    "text": "YOUR TURN! (EXERCISES)\n\ud83d\udc07\nEXERCISE 1: SPEED IT UP!\n\nModify the code so the LED blinks twice as fast. (Hint: change the numbers inside the delay() function).\n\n\ud83c\udd98\nEXERCISE 2: S.O.S.\n\nMorse code time! Write a program that blinks S.O.S. (3 short blinks, 3 long blinks, 3 short blinks). Use a 200ms delay for short, and 600ms for long.\n\n\ud83d\udea6\nEXERCISE 3: POLICE LIGHTS\n\nAdd a second LED (maybe blue?) to pin 12. Wire it up with its own resistor. Then, change your code so Pin 13 blinks, turns off, and then Pin 12 blinks!\n\nFINISH CHAPTER 01",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-0",
+    "title": "Playbook: BACK TO DASHBOARD",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / BACK TO DASHBOARD",
+    "text": "BACK TO DASHBOARD\nCHAPTER 02\nSENSE THE WORLD! \ud83d\udc41\ufe0f\n\nTime to give your robot a superpower \u2014 the ability to see! You'll build an automatic gate that opens when an object approaches and closes when it leaves. Along the way you'll learn how a robot reads an input, makes a decision, and controls an output.\n\n\ud83c\udfaf",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-1",
+    "title": "Playbook: LEARNING OBJECTIVES",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / LEARNING OBJECTIVES",
+    "text": "LEARNING OBJECTIVES\n1\nIdentify the Arduino Uno R3 power pins, ground pins, and digital I/O pins.\n2\nConnect an IR obstacle sensor module and a servo motor safely.\n3\nExplain why all parts in one circuit need a common ground.\n4\nUpload and test Arduino code that reads a sensor and moves a servo.\n5\nTroubleshoot common wiring, power, and sensor logic problems.",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-2",
+    "title": "Playbook: CORE CONCEPTS",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / CORE CONCEPTS",
+    "text": "CORE CONCEPTS\n\ud83e\udde0\nArduino Uno R3\nThe brain of the project. It runs your program, reads the IR sensor on a digital pin, and sends a control signal to the servo motor.\n\ud83d\udc41\ufe0f\nIR Sensor Module\nHas an infrared LED and a receiver. When an object reflects infrared light back, the module changes its OUT signal. Most modules output LOW when an object is detected, but some output HIGH.\n\u2699\ufe0f\nServo Motor (SG90)\nA motor that can move to a chosen angle, usually 0\u00b0 to 180\u00b0. It has three wires: power (red), ground (brown/black), and signal (orange/yellow).\n\ud83d\udd00\nDigital Input & Output\nA digital pin reads or writes two states: HIGH or LOW. Pin 2 reads the sensor; Pin 9 sends the timed signal that controls the servo position.\n\u23da\nCommon Ground\nAll connected parts must share the same ground reference. Without it, the Arduino and modules may not agree on what HIGH and LOW mean, causing random behaviour.",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-3",
+    "title": "Playbook: THE PARTS LIST",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / THE PARTS LIST",
+    "text": "THE PARTS LIST\nArduino Uno R3\n\nMain controller board + USB cable.\n\nIR Sensor Module\n\nDetects objects using reflected infrared light.\n\nServo Motor (SG90)\n\nMoves the gate arm from closed to open.\n\nJumper Wires (6+)\n\nMale-to-female wires to connect modules to pins.\n\n\ud83d\udd0c",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-4",
+    "title": "Playbook: THE WIRING DIAGRAM",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / THE WIRING DIAGRAM",
+    "text": "THE WIRING DIAGRAM\n\nFollow the connections carefully!\n\nCOMPONENT TERMINAL\t\u2192 ARDUINO PIN\tWHAT IT DOES\nIR Sensor VCC\t5V\tProvides power to the IR sensor\nIR Sensor GND\tGND\tCompletes the circuit, shares ground\nIR Sensor OUT\tDigital Pin 2\tSends HIGH/LOW reading to Arduino\nServo Red Wire\t5V\tProvides servo power (SG90)\nServo Brown/Black\tGND\tServo ground \u2014 must connect to Arduino GND\nServo Orange/Yellow\tDigital Pin 3\tReceives the servo control signal",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-5",
+    "title": "Playbook: IMPORTANT WIRING POINTS",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / IMPORTANT WIRING POINTS",
+    "text": "IMPORTANT WIRING POINTS\n\u23da\nCommon grounding is required \u2014 Arduino GND, IR sensor GND, and servo GND must all connect together.\n\ud83d\udd0d\nCheck terminals before powering: VCC \u2192 5V, GND \u2192 GND, OUT/SIG \u2192 digital pin.\n\ud83d\udeab\nDo NOT connect VCC directly to GND. That creates a short circuit and can damage your board!\n\ud83d\udd0c\nSmall SG90 servos can run from Arduino 5V for a demo. Larger servos need a separate 5V supply.\n\ud83d\udd17\nIf using a separate servo supply, connect supply negative to both servo GND and Arduino GND.\n\ud83d\udccc\nPin 9 is used for the servo signal because it supports PWM and is common in servo examples.\n\ud83d\udd27\nThe IR sensor may have a small potentiometer screw \u2014 turning it adjusts detection distance.",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-7",
+    "title": "Playbook: BUILD WITH BLOCKS OR AI",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / BUILD WITH BLOCKS OR AI",
+    "text": "BUILD WITH BLOCKS OR AI\n\nWant to drag-and-drop your code or let AI help you write it? Design your own logic without typing!\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-8",
+    "title": "Playbook: OPEN PICTOBLOX",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / OPEN PICTOBLOX",
+    "text": "OPEN PICTOBLOX\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n#include <Servo.h>\n#define Servopin 3\n#define Sensorpin 2\n\nServo gateServo;\n\nvoid setup() {\n  Serial.begin(9600);\n  gateServo.attach(Servopin);\n  pinMode(Sensorpin, INPUT);\n  gateServo.write(160);\n}\n\nvoid loop() {\n  bool value = digitalRead(Sensorpin);\n  Serial.println(value);\n\n  if (value == 0) {\n    gateServo.write(90);\n    delay(5);\n    gateServo.write(160);\n    delay(5);\n  } else {\n    gateServo.write(160);\n  }\n}\n\ud83e\uddee",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-10",
+    "title": "Playbook: IF",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / IF",
+    "text": "IF\nThe Servo.h library is included so Arduino can control the servo easily.\nIR sensor OUT \u2192 digital pin 2. Servo signal \u2192 digital pin 9.\nIn setup(), pin 2 is set as INPUT, the servo attaches to pin 9, and the gate starts closed (0\u00b0).\nIn loop(), Arduino reads the sensor value every cycle.\nIf an object is detected \u2192 servo moves to 90\u00b0 (gate opens).\nIf no object \u2192 servo moves back to 0\u00b0 (gate closes).\nA small 50ms delay keeps readings stable.\n\ud83d\udd2c",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-11",
+    "title": "Playbook: LAB PROCEDURE",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / LAB PROCEDURE",
+    "text": "LAB PROCEDURE\nPlace the Arduino on the table without connecting USB power yet.\nConnect IR sensor VCC \u2192 Arduino 5V.\nConnect IR sensor GND \u2192 Arduino GND.\nConnect IR sensor OUT \u2192 Arduino digital pin 2.\nConnect servo red wire \u2192 Arduino 5V.\nConnect servo brown/black wire \u2192 Arduino GND.\nConnect servo orange/yellow wire \u2192 Arduino digital pin 9.\nAttach the servo horn and optional cardboard gate arm.\nConnect the Arduino to computer via USB.\nOpen Arduino IDE, paste the code, select Arduino Uno and the correct port, then upload.\nMove an object in front of the IR sensor and observe the servo motion! \ud83c\udf89\n\u2705",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-12",
+    "title": "Playbook: EXPECTED RESULT",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / EXPECTED RESULT",
+    "text": "EXPECTED RESULT\n\ud83d\udea7\n\nWhen no object is in front of the IR sensor, the servo stays at 0\u00b0 (gate closed).\n\nWhen an object is detected, the servo turns to 90\u00b0 for about one second (gate opens).\n\nIf the sensor behaves the opposite way, change objectDetectedState from LOW to HIGH in the code.\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-13",
+    "title": "Playbook: TROUBLESHOOTING",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / TROUBLESHOOTING",
+    "text": "TROUBLESHOOTING\nPROBLEM\tLIKELY CAUSE\tFIX\nServo does not move\tWrong power/ground/signal wire\tCheck red\u21925V, brown/black\u2192GND, signal\u2192pin 9\nSensor light changes but no servo reaction\tOUT wire or code pin mismatch\tVerify IR OUT goes to digital pin 2\nServo jitters or Arduino resets\tServo drawing too much current\tUse separate 5V supply; connect grounds together\nServo moves opposite of expected\tSensor output logic is reversed\tChange objectDetectedState from LOW to HIGH\nSensor detects too far or too near\tSensitivity needs adjustment\tTurn the small potentiometer slowly and retest\nNothing works after wiring\tNo common ground or loose jumper\tReconnect all GND wires; press jumpers firmly",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-14",
+    "title": "Playbook: SAFETY & GOOD PRACTICE",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / SAFETY & GOOD PRACTICE",
+    "text": "SAFETY & GOOD PRACTICE\n\u2705 Always check wiring before plugging in USB power.\n\u2705 Keep metal objects away from exposed pins.\n\u2705 Do not force the servo horn by hand while powered.\n\u2705 Disconnect power before changing wires.\n\u2705 Use colour coding: red for 5V, black/brown for GND, another colour for signal.",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-15",
+    "title": "Playbook: YOUR TURN! (EXERCISES)",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / YOUR TURN! (EXERCISES)",
+    "text": "YOUR TURN! (EXERCISES)\n\ud83d\ude97\nEXERCISE 1: PARKING GARAGE\n\nAdd a second IR sensor on digital pin 3 for the exit. Open the gate for either sensor, and only close when both sensors show no object. (Hint: use || in your if condition.)\n\n\ud83d\udca1\nEXERCISE 2: ADD AN LED INDICATOR\n\nConnect a green LED to pin 7 with a 220\u03a9 resistor. Light it up when the gate is open, turn it off when closed. (Hint: use digitalWrite(7, HIGH) inside the if block.)\n\n\ud83c\udfb5\nEXERCISE 3: BUZZER ALERT\n\nAdd a piezo buzzer on pin 8. Play a short beep (tone(8, 1000, 200)) when an object is first detected. Make sure the buzzer only beeps once per detection, not continuously!\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play2-16",
+    "title": "Playbook: QUICK STUDENT CHECK",
+    "topic": "Sensors & motion",
+    "location": "Chapter 2 / QUICK STUDENT CHECK",
+    "text": "QUICK STUDENT CHECK\nWhat is the job of the IR sensor in this project?\nWhich Arduino pin reads the IR sensor output?\nWhich Arduino pin controls the servo signal?\nWhy do the Arduino, sensor, and servo need common ground?\nWhat should you change in the code if the servo opens when no object is present?\nFINISH CHAPTER 02",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play3-0",
+    "title": "Playbook: BACK TO DASHBOARD",
+    "topic": "Sensors & motion",
+    "location": "Chapter 3 / BACK TO DASHBOARD",
+    "text": "BACK TO DASHBOARD\nCHAPTER 03\nMOVE IT! \ud83d\ude97\n\nWelcome to Chapter 3! Now that you've mastered the basics of electronics, it's time to build something that moves. In this chapter, we will build a smart, wireless-controlled car.\n\nA Quick Note on Wireless Tech: Many beginner robotic cars use Bluetooth for local control. However, for this project, we are stepping into the world of IoT (Internet of Things)! We will use the ESP8266 NodeMCU microcontroller and the Blynk platform to control our car via WiFi. This means you can control your car from anywhere in the world, as long as both your phone and the car have internet access!\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play3-1",
+    "title": "Playbook: THE PARTS LIST",
+    "topic": "Sensors & motion",
+    "location": "Chapter 3 / THE PARTS LIST",
+    "text": "THE PARTS LIST\nESP8266 NodeMCU\n\nThe brain of our car, featuring built-in WiFi capabilities.\n\nL298N Motor Driver\n\nTakes weak signals and uses them to switch high-power electricity to the motors.\n\nDC Gear Motors\n\nConvert electrical energy into mechanical movement.\n\n\ud83d\udd0b\nLi-ion Batteries\n\nTwo 3.7V batteries in series (7.4V) to power the motors.\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play3-3",
+    "title": "Playbook: POWER CONNECTIONS",
+    "topic": "Sensors & motion",
+    "location": "Chapter 3 / POWER CONNECTIONS",
+    "text": "POWER CONNECTIONS\nConnect the two Li-ion batteries in series (7.4V total).\nConnect the Positive (Red) wire to the 12V terminal on the L298N.\nConnect the Negative (Black) wire to the GND terminal on the L298N.\nConnect a wire from the 5V terminal on the L298N to the Vin pin on the NodeMCU.\nConnect another wire from the GND terminal on the L298N to a GND pin on the NodeMCU.",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play3-4",
+    "title": "Playbook: MOTOR CONNECTIONS",
+    "topic": "Sensors & motion",
+    "location": "Chapter 3 / MOTOR CONNECTIONS",
+    "text": "MOTOR CONNECTIONS\nMotor 1 (Left): Connect to the OUT1 and OUT2 terminals.\nMotor 2 (Right): Connect to the OUT3 and OUT4 terminals.\nLOGIC CONNECTIONS (ESP8266 TO L298N)\nENA \u2192 D0\nIN1 \u2192 D1\nIN2 \u2192 D2\nIN3 \u2192 D3\nIN4 \u2192 D4\nENB \u2192 D5\n\nHow does it go in reverse?\n\nThe L298N uses an internal circuit called an H-Bridge. By changing the logic signals on IN1 and IN2 (e.g., from HIGH/LOW to LOW/HIGH), the H-Bridge flips the polarity of the electricity going to the motor, making it spin backward!\n",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play3-5",
+    "title": "Playbook: SETTING UP BLYNK",
+    "topic": "Sensors & motion",
+    "location": "Chapter 3 / SETTING UP BLYNK",
+    "text": "SETTING UP BLYNK\n\nBlynk makes it easy to build apps that talk to microcontrollers over the internet using Virtual Pins.\n\nSTEP 1: WEB DASHBOARD\nCreate an account on the Blynk website.\nCreate a New Template named \"WiFi control car\" (Hardware: ESP8266).\nCreate three Virtual Pin datastreams:\nX on pin V0 (0-100)\nY on pin V1 (0-100)\nSpeed on pin V2 (0-255)\nCreate a New Device from this template and save your BLYNK_AUTH_TOKEN.\nSTEP 2: MOBILE APP\nInstall the Blynk IoT app and log in.\nOpen your device and tap the setup icon.\nAdd a Slider and link it to Speed (V2).\nAdd a Joystick and link X to X (V0) and Y to Y (V1).",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play3-6",
+    "title": "Playbook: THE CODE",
+    "topic": "Sensors & motion",
+    "location": "Chapter 3 / THE CODE",
+    "text": "THE CODE\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59\n60\n61\n62\n63\n64\n65\n66\n67\n68\n69\n70\n71\n72\n73\n74\n75\n76\n77\n78\n79\n80\n81\n82\n83\n84\n85\n86\n87\n88\n89\n90\n91\n92\n93\n94\n95\n96\n97\n98\n99\n100\n101\n102\n103\n104\n105\n106\n107\n108\n109\n110\n111\n112\n113\n114\n115\n/*Nodemcu ESP8266 WIFI control car with the New Blynk app.*/\n\n// Include the library files\n#define BLYNK_PRINT Serial\n#include <ESP8266WiFi.h>\n#include <BlynkSimpleEsp8266.h>\n\n// Define the motor pins\n#define ENA D0\n#define IN1 D1\n#define IN2 D2\n#define IN3 D3\n#define IN4 D4\n#define ENB D5\n\n// Variables for the Blynk widget values\nint x = 50;\nint y = 50;\nint Speed;\n\nchar auth[] = \"\"; //Enter your Blynk auth token\nchar ssid[] = \"\"; //Enter your WIFI name\nchar pass[] = \"\"; //Enter your WIFI passowrd\n\nvoid setup() {\n  Serial.begin(9600);\n  //Set the motor pins as output pins\n  pinMode(ENA, OUTPUT);\n  pinMode(IN1, OUTPUT);\n  pinMode(IN2, OUTPUT);\n  pinMode(IN3, OUTPUT);\n  pinMode(IN4, OUTPUT);\n  pinMode(ENB, OUTPUT);\n\n  // Initialize the Blynk library\n  Blynk.begin(auth, ssid, pass, \"blynk.cloud\", 80);\n}\n\n// Get the joystick values\nBLYNK_WRITE(V0) {\n  x = param[0].asInt();\n}\n// Get the joystick values\nBLYNK_WRITE(V1) {\n  y = param[0].asInt();\n}\n//Get the slider values\nBLYNK_WRITE(V2) {\n  Speed = param.asInt();\n}\n\n// Check these values using the IF condition\nvoid smartcar() {\n  if (y > 70) {\n    carForward();\n    Serial.println(\"carForward\");\n  } else if (y < 30) {\n    carBackward();\n    Serial.println(\"carBackward\");\n  } else if (x < 30) {\n    carLeft();\n    Serial.println(\"carLeft\");\n  } else if (x > 70) {\n    carRight();\n    Serial.println(\"carRight\");\n  } else if (x < 70 && x > 30 && y < 70 && y > 30) {\n    carStop();\n    Serial.println(\"carstop\");\n  }\n}\n\nvoid loop() {\n  Blynk.run();// Run the blynk function\n  smartcar();// Call the main function\n}\n\n/**************Motor movement functions*****************/\nvoid carForward() {\n  analogWrite(ENA, Speed);\n  analogWrite(ENB, Speed);\n  digitalWrite(IN1, LOW);\n  digitalWrite(IN2, HIGH);\n  digitalWrite(IN3, HIGH);\n  digitalWrite(IN4, LOW);\n}\nvoid carBackward() {\n  analogWrite(ENA, Speed);\n  analogWrite(ENB, Speed);\n  digitalWrite(IN1, HIGH);\n  digitalWrite(IN2, LOW);\n  digitalWrite(IN3, LOW);\n  digitalWrite(IN4, HIGH);\n}\nvoid carLeft() {\n  analogWrite(ENA, Speed);\n  analogWrite(ENB, Speed);\n  digitalWrite(IN1, HIGH);\n  digitalWrite(IN2, LOW);\n  digitalWrite(IN3, HIGH);\n  digitalWrite(IN4, LOW);\n}\nvoid carRight() {\n  analogWrite(ENA, Speed);\n  analogWrite(ENB, Speed);\n  digitalWrite(IN1, LOW);\n  digitalWrite(IN2, HIGH);\n  digitalWrite(IN3, LOW);\n  digitalWrite(IN4, HIGH);\n}\nvoid carStop() {\n  digitalWrite(IN1, LOW);\n  digitalWrite(IN2, LOW);\n  digitalWrite(IN3, LOW);\n  digitalWrite(IN4, LOW);\n}",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  },
+  {
+    "id": "play3-7",
+    "title": "Playbook: STUDENT ASSIGNMENTS: UNLEASH CREATIVITY!",
+    "topic": "Sensors & motion",
+    "location": "Chapter 3 / STUDENT ASSIGNMENTS: UNLEASH CREATIVITY!",
+    "text": "STUDENT ASSIGNMENTS: UNLEASH CREATIVITY!\nASSIGNMENT 1: DESIGN A CUSTOM CAR BODY\n\nYour primary assignment is to design the most unique and creative body for your car. Let your imagination run wild! Use foamboards, cardboard, LEGO bricks, balsa wood, or even 3D-print your own chassis. Ensure you leave room to access the NodeMCU's USB port and the battery pack.\n\nASSIGNMENT 2: CODE MODIFICATIONS\nHeadlights: Add two LEDs to the front of the car and a virtual Switch in Blynk.\nHorn: Connect a piezo buzzer and add a push-button widget to honk.\nSpeed Limits: Modify the code so reversing automatically halves the speed.",
+    "url": "https://www.prajvalarora.com/playbook",
+    "kind": "web"
+  }
+]
