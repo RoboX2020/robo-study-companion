@@ -1,0 +1,20 @@
+{
+  "status": "incomplete",
+  "results": [
+    {
+      "input": "What topic publishes simulation time?",
+      "output_mode": "Observed successful AI browser answer from 17:26 local test",
+      "metrics": {
+        "FaithfulnessMetric": {
+          "score": 1.0,
+          "reason": "The score is 1.00 because the output is completely faithful to the retrieval context, with no contradictions found! Great job!"
+        },
+        "AnswerRelevancyMetric": {
+          "status": "unavailable",
+          "error_type": "TimeoutError"
+        }
+      }
+    }
+  ],
+  "limitations": "Small sample; free judge; no paid fallback; not measured learning gains"
+}
