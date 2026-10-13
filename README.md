@@ -24,9 +24,9 @@ Known source disagreement: Chapter 2 uses servo pin 3 in the code and pin 9 in p
 
 Working offline: public source retrieval, excerpt citations, unsupported-query refusal, 12 source-validated authored MCQ/short/numerical questions, local PDF/PPTX/text/caption import, local mastery dashboard, course map.
 
-AI paths are implemented but must be tested with an active key: source-grounded generated answers, two-pass question generation/verification, PDF diagram descriptions, sampled video-frame extraction. Video audio transcription is not implemented. PPTX diagrams currently require export to PDF. Uploaded topics are tagged by file rather than automatically mapped to prerequisites. Mock-exam batching and semantic short-answer grading remain incomplete.
+A tiny Gemini 3.8 Flash provider test passed, but realistic tutor calls returned timeout/503 high-demand errors on October 12. AI paths remain unverified end-to-end: source-grounded generated answers, two-pass question generation/verification, PDF diagram descriptions, sampled video-frame extraction. Video audio transcription is not implemented. PPTX diagrams currently require export to PDF. Uploaded topics are tagged by file rather than automatically mapped to prerequisites. Mock-exam batching and semantic short-answer grading remain incomplete.
 
-Evaluation in `evaluation/baseline.json` is a seven-case deterministic baseline, not RAGAS/DeepEval/TruLens. Semantic faithfulness and answer relevancy are not measured yet. Simulated profiles show learner-model estimates across scripted sessions, not real human learning gains. Do not present this as full Track D compliance until those gaps are addressed.
+Evaluation in `evaluation/baseline.json` is a seven-case deterministic baseline. `evaluation/deepeval_run.py` runs custom precision/recall metrics using DeepEval BaseMetric and LLMTestCase, with telemetry disabled. Install DeepEval in a Python virtual environment and run `python evaluation/deepeval_run.py` from the project root. These are transparent custom source-ID metrics, not built-in LLM-judged metrics. Semantic faithfulness and answer relevancy are not measured yet. Simulated profiles show learner-model estimates across scripted sessions, not real human learning gains. Do not present this as full Track D compliance until those gaps are addressed.
 
 ## Privacy and API limits
 
