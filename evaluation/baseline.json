@@ -1,0 +1,184 @@
+{
+  "timestamp": "2026-10-12T23:51:02.495Z",
+  "framework": "Transparent deterministic retrieval baseline, not RAGAS/DeepEval model evaluation",
+  "testSetSize": 7,
+  "retrieval": [
+    {
+      "question": "ROS2 Publish Clock topic",
+      "expected": [
+        "lab-19-0",
+        "lab-12-0",
+        "lab-20-0"
+      ],
+      "retrieved": [
+        "lab-19-0",
+        "lab-20-0",
+        "lab-17-0",
+        "lab-13-1400"
+      ],
+      "precision": 0.5,
+      "recall": 0.6666666666666666,
+      "refused": false
+    },
+    {
+      "question": "Wheel Radius Wheel Distance Max Linear Speed",
+      "expected": [
+        "lab-29-0",
+        "lab-21-1400"
+      ],
+      "retrieved": [
+        "lab-29-0",
+        "lab-32-1400",
+        "lab-21-1400",
+        "lab-6-4200"
+      ],
+      "precision": 0.5,
+      "recall": 1,
+      "refused": false
+    },
+    {
+      "question": "LED resistor resistance",
+      "expected": [
+        "play-3",
+        "play-4",
+        "play-5"
+      ],
+      "retrieved": [
+        "play-4",
+        "play-3",
+        "play-5",
+        "play-13"
+      ],
+      "precision": 0.75,
+      "recall": 1,
+      "refused": false
+    },
+    {
+      "question": "Common grounding Arduino sensor servo",
+      "expected": [
+        "play2-5",
+        "play2-11"
+      ],
+      "retrieved": [
+        "play2-5",
+        "play2-16",
+        "play2-1",
+        "play2-13"
+      ],
+      "precision": 0.25,
+      "recall": 0.5,
+      "refused": false
+    },
+    {
+      "question": "geometry_msgs/msg/Twist subscriber /cmd_vel",
+      "expected": [
+        "lab-26-0",
+        "lab-21-0"
+      ],
+      "retrieved": [
+        "lab-26-0",
+        "lab-21-0",
+        "lab-32-0",
+        "lab-31-2800"
+      ],
+      "precision": 0.5,
+      "recall": 1,
+      "refused": false
+    },
+    {
+      "question": "weather forecast Paris",
+      "expected": [],
+      "retrieved": [],
+      "precision": 1,
+      "recall": 1,
+      "refused": true
+    },
+    {
+      "question": "Who won the 2040 World Cup?",
+      "expected": [],
+      "retrieved": [],
+      "precision": 1,
+      "recall": 1,
+      "refused": true
+    }
+  ],
+  "meanContextPrecision": 0.6428571428571429,
+  "meanContextRecall": 0.8809523809523808,
+  "faithfulness": "Extractive output is copied from source. Semantic model faithfulness not evaluated.",
+  "answerRelevancy": "Not evaluated with a semantic judge",
+  "profiles": [
+    {
+      "name": "novice",
+      "sessions": [
+        {
+          "ROS 2 & Isaac Sim": 0.44752680733310274,
+          "Circuits & Arduino": 0.6000000000000001
+        },
+        {
+          "ROS 2 & Isaac Sim": 0.4608619216980768,
+          "Circuits & Arduino": 0.6000000000000001,
+          "Sensors & motion": 0.6000000000000001
+        },
+        {
+          "ROS 2 & Isaac Sim": 0.4608619216980768,
+          "Circuits & Arduino": 0.5207920792079209,
+          "Sensors & motion": 0.5207920792079209
+        }
+      ],
+      "answered": 12,
+      "repetitionRate": 0,
+      "note": "Simulated correctness is scripted, not measured human learning."
+    },
+    {
+      "name": "mixed",
+      "sessions": [
+        {
+          "ROS 2 & Isaac Sim": 0.6000000000000001,
+          "Circuits & Arduino": 0.4739130434782609,
+          "Sensors & motion": 0.1574468085106383
+        },
+        {
+          "ROS 2 & Isaac Sim": 0.8625,
+          "Circuits & Arduino": 0.21436301032956223,
+          "Sensors & motion": 0.7925983638488509
+        },
+        {
+          "ROS 2 & Isaac Sim": 0.7498295185354904,
+          "Circuits & Arduino": 0.21436301032956223,
+          "Sensors & motion": 0.7925983638488509
+        }
+      ],
+      "answered": 12,
+      "repetitionRate": 0,
+      "note": "Simulated correctness is scripted, not measured human learning."
+    },
+    {
+      "name": "strong",
+      "sessions": [
+        {
+          "ROS 2 & Isaac Sim": 0.8625,
+          "Circuits & Arduino": 0.6000000000000001,
+          "Sensors & motion": 0.6000000000000001
+        },
+        {
+          "ROS 2 & Isaac Sim": 0.9626831148804934,
+          "Circuits & Arduino": 0.6188976377952757,
+          "Sensors & motion": 0.8625
+        },
+        {
+          "ROS 2 & Isaac Sim": 0.97,
+          "Circuits & Arduino": 0.6188976377952757,
+          "Sensors & motion": 0.9626831148804934
+        }
+      ],
+      "answered": 12,
+      "repetitionRate": 0,
+      "note": "Simulated correctness is scripted, not measured human learning."
+    }
+  ],
+  "limits": [
+    "Small hand-built test set",
+    "No framework-based model-judged evaluation yet",
+    "Mastery changes are model estimates, not learning gains"
+  ]
+}
