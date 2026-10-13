@@ -10,3 +10,9 @@ assert(retrieve('LED resistor resistance',units).some(u=>u.id.startsWith('play-'
 assert(!safeModelAnswer({answer:'invented',evidence:[{id:units[0].id,quote:'not present'}]},units).citations.length);
 const seen=[];let state={mastery:{},seen};while(true){const q=nextQuestion(bank,state);if(!q)break;assert(!seen.includes(q.id));seen.push(q.id);}assert.equal(seen.length,bank.length);
 console.log(`Passed: ${bank.length} source and answer validations; BKT; refusal; retrieval; citation rejection; no-repeat selection.`);
+const {classifyUnit,assessmentBatch}=await import('./core.mjs');
+assert.equal(classifyUnit('Voltage resistor Ohm LED'),'Circuits & Arduino');
+assert.equal(classifyUnit('ROS2 Isaac Sim /clock /cmd_vel'),'ROS 2 & Isaac Sim');
+assert.equal(assessmentBatch(bank,{seen:[],mastery:{}},'all',5).length,5);
+assert.equal(new Set(assessmentBatch(bank,{seen:[],mastery:{}},'all',5).map(q=>q.id)).size,5);
+console.log('Topic tagging and mock exam checks passed.');
