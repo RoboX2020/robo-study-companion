@@ -1,0 +1,14 @@
+[
+  {
+    "input": "What topic publishes simulation time?",
+    "actual_output": "Simulation time is published on the topic `/clock`.",
+    "expected_output": "Simulation time is published on /clock.",
+    "retrieval_context": [
+      "## B5. Configure Isaac Read Simulation Time\n\n```\nIsaac Read Simulation Time\n\n```\n\nUse simulation time.\n\nIf the node contains a property named:\n\n```\nresetOnStop\n\n```\n\nset it to:\n\n```\nFalse\n\n```\n\n![Screenshot from 2026-09-16 01-42-41](https://github.com/user-attachments/assets/1854ebc1-f635-4710-ac22-73aad3ac8827)\n\nLeave reference time numerator and denominator at their default values.\n\nThe output should be:\n\n```\nsimulationTime\n\n```\n",
+      "## Objective\n\nROS2 nodes must use Isaac Sim simulation time. You will create a graph that publishes simulation time on:\n\n```\n/clock\n\n```\n\nDo not continue until `/clock` is working.\n",
+      "## Laboratory Roadmap\n\n| Stage | Main task | Required result |\n| --- | --- | --- |\n| A | Validate the starter USD | Robot simulates without ROS 2 |\n| B | Publish `/clock` | ROS 2 receives simulation time |\n| C | Control the robot | `/cmd_vel` moves the robot |\n| D | Add lidar | `/scan` publishes LaserScan data |\n| E | Add camera | Camera image topics publish |\n| F | Publish odometry and TF | `odom → base_footprint` exists |\n| G | Inspect QoS (optional) | QoS compatibility is understood |\n| H | Run localization (optional) | AMCL publishes `map → odom` |\n| I | Run Nav2 (optional) | Robot reaches a goal |\n| J | Complete diagnostics (optional) | All required outputs are verified |\n",
+      "## B6. Configure the ROS2 Publish Clock node\n\n```\nROS2 Publish Clock\n\n```\n\n```\nTopic Name = /clock\nQueue Size = 10\n\n```\n\n![Screenshot from 2026-09-16 01-44-49](https://github.com/user-attachments/assets/57fe4ca8-f4ca-46b2-b01a-52c2849bff88)\n\nIf `qosProfile` is available, leave it at its default value.\n\n```\nOn Playback Tick.outputs:tick\n    →\nROS2 Publish Clock.inputs:execIn\n\n```\n\n```\nIsaac Read Simulation Time.outputs:simulationTime\n    →\nROS2 Publish Clock.inputs:timeStamp\n\n```\n\nThe final connections must include:\n\n```\nOn Playback Tick.tick\n    → ROS2 Publish Clock.execIn\n\nROS2 Context.context\n    → ROS2 Publish Clock.context\n\nIsaac Read Simulation Time.simulationTime\n    → ROS2 Publish Clock.timeStamp\n\n```\n\n![011_ROS_Clock](https://github.com/user-attachments/assets/99e9b5b6-f4c5-4aa9-a58a-ecba57f7fb9f)\n"
+    ],
+    "output_mode": "Observed successful AI browser answer from 17:26 local test"
+  }
+]
