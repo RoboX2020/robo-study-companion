@@ -16,7 +16,7 @@ export function extractive(query,units) {
    chunks.push({text,id:u.id,score:q.filter(w=>words(text).includes(w)).length});}
   return chunks;
  });
- const selected=sentences.sort((a,b)=>b.score-a.score).slice(0,3);
+ const leading=sentences.find(s=>s.id===hits[0].id);const ranked=[...sentences].sort((a,b)=>b.score-a.score);const procedural=/\b(before|steps|procedure|start|testing)\b/i.test(query);const selected=procedural&&leading?[leading,...ranked.filter(s=>s!==leading).slice(0,2)]:ranked.slice(0,3);
  return {answer:'Source excerpts (offline search, not a generated explanation):\n\n'+selected.map(x=>x.text).join('\n\n'),citations:[...new Set(selected.map(s=>s.id))],refused:false};
 }
 export function masteryUpdate(prior,correct,confidence=1) {
