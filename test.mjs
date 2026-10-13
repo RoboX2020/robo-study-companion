@@ -33,3 +33,5 @@ console.log('Evidence-backed concept graph, cycle and missing-node rejection pas
 const {contextSample}=await import('./core.mjs');assert.equal(contextSample(units,12).length,12);assert.equal(new Set(contextSample(units,12).map(u=>u.topic)).size,new Set(units.map(u=>u.topic)).size);console.log('Representative context sampling passed.');
 
 assert(!validateQuestion({...bank[0],evidence:''},units));assert(!validateQuestion({...bank[0],difficulty:99},units));assert(!validateQuestion({...bank[0],prompt:''},units));assert(!validateQuestion({...bank.find(q=>q.type==='short'),keywords:[[]]},units));console.log('Malformed generated-question rejection passed.');
+
+assert(extractive('What must be done before testing /clock?',units).answer.includes('Press Play'));console.log('Procedural source introduction retained.');
