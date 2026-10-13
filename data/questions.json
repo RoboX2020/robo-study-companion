@@ -1,0 +1,186 @@
+[
+  {
+    "id": "clock-topic",
+    "source": "lab-19-0",
+    "type": "mcq",
+    "prompt": "Which topic does ROS2 Publish Clock publish in the lab?",
+    "answer": 0,
+    "evidence": "Topic Name = /clock",
+    "topic": "ROS 2 & Isaac Sim",
+    "difficulty": 1,
+    "explanation": "Topic Name = /clock",
+    "options": [
+      "/clock",
+      "/cmd_vel",
+      "/scan",
+      "/odom"
+    ]
+  },
+  {
+    "id": "clock-test",
+    "source": "lab-20-0",
+    "type": "short",
+    "prompt": "What must you do in Isaac Sim before testing /clock?",
+    "answer": "Play",
+    "evidence": "Press Play in Isaac Sim.",
+    "topic": "ROS 2 & Isaac Sim",
+    "difficulty": 1,
+    "explanation": "Press Play in Isaac Sim.",
+    "keywords": [
+      [
+        "play",
+        "start simulation"
+      ]
+    ]
+  },
+  {
+    "id": "twist",
+    "source": "lab-26-0",
+    "type": "mcq",
+    "prompt": "What message type must the /cmd_vel subscriber use?",
+    "answer": 1,
+    "evidence": "geometry_msgs/msg/Twist",
+    "topic": "ROS 2 & Isaac Sim",
+    "difficulty": 1,
+    "explanation": "geometry_msgs/msg/Twist",
+    "options": [
+      "sensor_msgs/msg/LaserScan",
+      "geometry_msgs/msg/Twist",
+      "nav_msgs/msg/Odometry",
+      "std_msgs/msg/String"
+    ]
+  },
+  {
+    "id": "wheel-radius",
+    "source": "lab-29-0",
+    "type": "numerical",
+    "prompt": "What wheel radius does the lab specify (meters)?",
+    "answer": 0.025,
+    "evidence": "Wheel Radius = 0.025",
+    "topic": "ROS 2 & Isaac Sim",
+    "difficulty": 1,
+    "explanation": "Wheel Radius = 0.025",
+    "unit": "m"
+  },
+  {
+    "id": "wheel-distance",
+    "source": "lab-29-0",
+    "type": "numerical",
+    "prompt": "What wheel distance does the lab specify (meters)?",
+    "answer": 0.16,
+    "evidence": "Wheel Distance = 0.16",
+    "topic": "ROS 2 & Isaac Sim",
+    "difficulty": 1,
+    "explanation": "Wheel Distance = 0.16",
+    "unit": "m"
+  },
+  {
+    "id": "speed",
+    "source": "lab-29-0",
+    "type": "numerical",
+    "prompt": "What maximum linear speed does the lab specify (m/s)?",
+    "answer": 0.22,
+    "evidence": "Max Linear Speed = 0.22",
+    "topic": "ROS 2 & Isaac Sim",
+    "difficulty": 2,
+    "explanation": "Max Linear Speed = 0.22",
+    "unit": "m/s"
+  },
+  {
+    "id": "led",
+    "source": "play-3",
+    "type": "mcq",
+    "prompt": "Why add a resistor in the LED circuit?",
+    "answer": 2,
+    "evidence": "Limits the flow of electricity so the LED doesn't pop.",
+    "topic": "Circuits & Arduino",
+    "difficulty": 1,
+    "explanation": "Limits the flow of electricity so the LED doesn't pop.",
+    "options": [
+      "Store the code",
+      "Increase current indefinitely",
+      "Limit current through the LED",
+      "Change Arduino voltage to 24 V"
+    ]
+  },
+  {
+    "id": "ohms",
+    "source": "play-4",
+    "type": "numerical",
+    "prompt": "Using the Playbook example, what resistance gives (5 V - 2 V) / 0.02 A?",
+    "answer": 150,
+    "evidence": "R = 150 Ohms",
+    "topic": "Circuits & Arduino",
+    "difficulty": 2,
+    "explanation": "R = 150 Ohms",
+    "unit": "ohms"
+  },
+  {
+    "id": "led-standard",
+    "source": "play-4",
+    "type": "numerical",
+    "prompt": "Which standard resistor value does the Playbook use for the LED?",
+    "answer": 220,
+    "evidence": "We use 220\u03a9 because it's a common standard size and provides a safe buffer!",
+    "topic": "Circuits & Arduino",
+    "difficulty": 1,
+    "explanation": "We use 220\u03a9 because it's a common standard size and provides a safe buffer!",
+    "unit": "ohms"
+  },
+  {
+    "id": "ground",
+    "source": "play2-5",
+    "type": "short",
+    "prompt": "Which grounds need to connect together in the gate circuit?",
+    "answer": "all",
+    "evidence": "Arduino GND, IR sensor GND, and servo GND must all connect together.",
+    "topic": "Sensors & motion",
+    "difficulty": 1,
+    "explanation": "Arduino GND, IR sensor GND, and servo GND must all connect together.",
+    "keywords": [
+      [
+        "arduino"
+      ],
+      [
+        "sensor",
+        "ir"
+      ],
+      [
+        "servo"
+      ],
+      [
+        "ground",
+        "gnd"
+      ]
+    ]
+  },
+  {
+    "id": "gate-angle",
+    "source": "play2-12",
+    "type": "numerical",
+    "prompt": "What angle opens the gate when an object is detected?",
+    "answer": 90,
+    "evidence": "servo turns to 90\u00b0",
+    "topic": "Sensors & motion",
+    "difficulty": 1,
+    "explanation": "servo turns to 90\u00b0",
+    "unit": "degrees"
+  },
+  {
+    "id": "safe",
+    "source": "play2-14",
+    "type": "mcq",
+    "prompt": "Before changing the circuit wires, what should you do?",
+    "answer": 3,
+    "evidence": "Disconnect power before changing wires.",
+    "topic": "Sensors & motion",
+    "difficulty": 1,
+    "explanation": "Disconnect power before changing wires.",
+    "options": [
+      "Force the servo horn",
+      "Short VCC to ground",
+      "Leave USB connected",
+      "Disconnect power"
+    ]
+  }
+]
