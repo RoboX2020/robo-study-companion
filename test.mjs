@@ -29,3 +29,5 @@ assert.throws(()=>validateConceptMap({...graph,edges:[...graph.edges,{from:'c',t
 assert.throws(()=>validateConceptMap({...graph,edges:[{from:'missing',to:'c',reason:'bad'}]},units));
 assert.throws(()=>validateConceptMap({nodes:[{id:'x',label:'invented',evidence:[{id:'lab-19-0',quote:'fabricated'}]}],edges:[]},units));
 console.log('Evidence-backed concept graph, cycle and missing-node rejection passed.');
+
+const {contextSample}=await import('./core.mjs');assert.equal(contextSample(units,12).length,12);assert.equal(new Set(contextSample(units,12).map(u=>u.topic)).size,new Set(units.map(u=>u.topic)).size);console.log('Representative context sampling passed.');
