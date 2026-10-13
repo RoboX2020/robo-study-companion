@@ -20,13 +20,16 @@ class FreeGeminiJudge(DeepEvalBaseLLM):
     async def a_generate(self,prompt,schema=None):return self.generate(prompt,schema)
 if __name__=='__main__':
     judge=FreeGeminiJudge();data=json.load(open('evaluation/semantic-cases.json'));rows=[]
+    previous=json.load(open('evaluation/deepeval-semantic.json')) if os.path.exists('evaluation/deepeval-semantic.json') else {'results':[]}
+    old={r['input']:r for r in previous['results']}
     for raw in data:
         case=LLMTestCase(input=raw['input'],actual_output=raw['actual_output'],expected_output=raw['expected_output'],retrieval_context=raw['retrieval_context'])
-        row={'input':raw['input'],'output_mode':raw['output_mode'],'metrics':{}}
+        row=old.get(raw['input'],{'input':raw['input'],'output_mode':raw['output_mode'],'metrics':{}})
         for cls in [FaithfulnessMetric,AnswerRelevancyMetric,ContextualPrecisionMetric,ContextualRecallMetric]:
+            if 'score' in row['metrics'].get(cls.__name__,{}):continue
             metric=cls(model=judge,async_mode=False,include_reason=True)
             try:
-                metric.measure(case);row['metrics'][cls.__name__]={'score':metric.score,'reason':metric.reason}
+                metric.measure(case);row['metrics'][cls.__name__]={'score':metric.score,'reason':metric.reason,'judge':judge.get_model_name()}
             except Exception as e:
                 row['metrics'][cls.__name__]={'status':'unavailable','error_type':type(e).__name__};print(cls.__name__,'failed',type(e).__name__,flush=True)
                 rows.append(row);json.dump({'status':'incomplete','results':rows,'limitations':'Small sample; free judge; no paid fallback; not measured learning gains'},open('evaluation/deepeval-semantic.json','w'),indent=2);raise SystemExit(2)
