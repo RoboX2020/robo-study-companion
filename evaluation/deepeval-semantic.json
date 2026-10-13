@@ -7,11 +7,22 @@
       "metrics": {
         "FaithfulnessMetric": {
           "score": 1.0,
-          "reason": "The score is 1.00 because the output is completely faithful to the retrieval context, with no contradictions found! Great job!"
+          "reason": "The score is 1.00 because the output is completely faithful to the retrieval context, with no contradictions found! Great job!",
+          "judge": "gemini-3.8-flash, dedicated free-tier"
         },
         "AnswerRelevancyMetric": {
+          "score": 1.0,
+          "reason": "The score is 1.00 because the actual output directly and accurately addresses the input without containing any irrelevant statements. Great job!",
+          "judge": "gemini-3.6-flash, dedicated free-tier"
+        },
+        "ContextualPrecisionMetric": {
+          "score": 0.6388888888888888,
+          "reason": "The score is 0.64 because the first node in the retrieval contexts is irrelevant, as it \"discusses configuring Isaac Read Simulation Time but does not explicitly state that simulation time is published on the `/clock` topic.\" However, the score remains reasonably high because the remaining nodes at ranks 2, 3, and 4 are relevant, directly confirming that simulation time is published on the `/clock` topic, such as the second node which mentions 'publishes simulation time on: /clock'.",
+          "judge": "gemini-3.6-flash, dedicated free-tier"
+        },
+        "ContextualRecallMetric": {
           "status": "unavailable",
-          "error_type": "TimeoutError"
+          "error_type": "HTTPError"
         }
       }
     }
