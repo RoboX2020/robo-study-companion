@@ -8,7 +8,14 @@ export function retrieve(query, units, count=4) {
 }
 export function extractive(query,units) {
  const hits=retrieve(query,units); if(!hits.length) return {answer:'I could not find support for this in your course material. Try a course concept or add a source. I will not fill the gap with outside knowledge.',refused:true,citations:[]};
- const q=words(query); const sentences=hits.flatMap(u=>u.text.split(/(?<=[.!?])\s+|\n/).filter(s=>s.trim().length>35).map(s=>({text:s.trim(),id:u.id,score:q.filter(w=>words(s).includes(w)).length})));
+ const q=words(query); const sentences=hits.flatMap(u=>{
+  const lines=u.text.split(/(?<=[.!?])\s+|\n/).map(s=>s.trim()).filter(s=>s&&!s.startsWith('```')),chunks=[];
+  for(let i=0;i<lines.length;i++){let text=lines[i];
+   // Preserve short labels, code, formulae and the line after an introductory colon.
+   while(i+1<lines.length&&(text.length<55||text.endsWith(':')))text+='\n'+lines[++i];
+   chunks.push({text,id:u.id,score:q.filter(w=>words(text).includes(w)).length});}
+  return chunks;
+ });
  const selected=sentences.sort((a,b)=>b.score-a.score).slice(0,3);
  return {answer:'Source excerpts (offline search, not a generated explanation):\n\n'+selected.map(x=>x.text).join('\n\n'),citations:[...new Set(selected.map(s=>s.id))],refused:false};
 }
@@ -36,7 +43,8 @@ export function validateQuestion(q,units) {
 }
 export function safeModelAnswer(result,units) {
  if(!result || !Array.isArray(result.evidence)) throw Error('The model did not return source evidence.');
- const valid=result.evidence.filter(e=>units.some(u=>u.id===e.id&&u.text.includes(e.quote)));
+ const valid=result.evidence.filter(e=>e&&typeof e.quote==='string'&&e.quote.trim().length>=5&&units.some(u=>u.id===e.id&&u.text.includes(e.quote)));
+ if(valid.length!==result.evidence.length)throw Error('The answer contained an invalid citation.');
  if(result.refused||!valid.length)return {answer:'The material does not support an answer with verifiable excerpts. I am declining rather than guessing.',refused:true,citations:[]};
  return {answer:String(result.answer),refused:false,citations:[...new Set(valid.map(e=>e.id))],evidence:valid};
 }
