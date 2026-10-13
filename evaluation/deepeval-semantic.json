@@ -1,5 +1,7 @@
 {
-  "status": "incomplete",
+  "status": "completed",
+  "timestamp": "2026-10-13T02:47:19.011944+00:00",
+  "judge": "Gemini free-tier gemini-3.6-flash",
   "results": [
     {
       "input": "What topic publishes simulation time?",
@@ -21,11 +23,12 @@
           "judge": "gemini-3.6-flash, dedicated free-tier"
         },
         "ContextualRecallMetric": {
-          "status": "unavailable",
-          "error_type": "HTTPError"
+          "score": 1.0,
+          "reason": "The score is 1.00 because node 2 in retrieval context perfectly supports the claim in sentence 1 regarding simulation time being published on /clock. Great job!",
+          "judge": "Gemini free-tier gemini-3.6-flash"
         }
       }
     }
   ],
-  "limitations": "Small sample; free judge; no paid fallback; not measured learning gains"
+  "limitations": "Small hand-built sample. Semantic judge scores, not learning gains or proof of correctness."
 }
