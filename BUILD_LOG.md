@@ -19,3 +19,5 @@ Draft only. Private repository, no submission, no billing, no publication of pri
 2026-10-12 18:48 AZ: Representative topic-balanced context sampling added and tested. AI question proposal succeeded but verifier503 prevented acceptance. Recorded fresh private demo showing current offline search, mock exam/report, BKT, PDF original-page viewer and real PPTX images. No fake model answers in recording.
 
 2026-10-12 19:16 AZ: Resumable built-in DeepEval harness preserves completed scores. Single observed /clock answer: prior faithfulness1.0 (3.8Flash), relevance1.0 and context precision0.639 (3.6Flash). Context recall HTTP error; stopped, no retry. Per-metric judge provenance retained. No multi-case accuracy or learning-gain claim.
+
+2026-10-12 19:47 AZ: Completed single observed /clock DeepEval smoke test: faithfulness1.0, relevance1.0, contextual precision0.639, recall1.0. Per-metric judge provenance retained. Added malformed generated-question checks (prompt, explanation, difficulty, quote and keyword shape). Still not a multi-case accuracy evaluation.
