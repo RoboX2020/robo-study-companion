@@ -72,3 +72,7 @@ export function validateConceptMap(result,units){
  const seen=new Set(),active=new Set();function visit(id){if(active.has(id))throw Error('Prerequisite map contains a cycle.');if(seen.has(id))return;active.add(id);for(const e of edges.filter(e=>e.from===id))visit(e.to);active.delete(id);seen.add(id);}for(const n of nodes)visit(n.id);
  return {nodes,edges};
 }
+
+export function contextSample(units,limit=24){
+ const groups=[...new Set(units.map(u=>u.topic))].map(topic=>units.filter(u=>u.topic===topic));const out=[];for(let i=0;out.length<Math.min(limit,units.length);i++){for(const g of groups){if(g[i]&&out.length<limit)out.push(g[i]);}}return out;
+}
