@@ -39,3 +39,5 @@ Code, UI, authored tests and documentation were AI-assisted. Course material is 
 Local text now survives PDF/PPTX AI extraction failures. Offline excerpts preserve short code/formula lines and reject empty or invalid citation quotes. The /clock fallback and formula regression tests pass.
 
 Evidence-backed AI concept/prerequisite extraction is implemented. Exact concept quotes, unique IDs, valid edges and acyclic graphs are required. A mocked browser contract test passed; real model output still needs a live test. Edge reasoning remains a model suggestion, not a proven dependency.
+
+2026-10-12 18:46 test: AI question proposal returned successfully; separate verifier returned503. No generated questions were accepted. Context sampling now balances course topics.
