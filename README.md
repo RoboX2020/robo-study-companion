@@ -41,3 +41,5 @@ Local text now survives PDF/PPTX AI extraction failures. Offline excerpts preser
 Evidence-backed AI concept/prerequisite extraction is implemented. Exact concept quotes, unique IDs, valid edges and acyclic graphs are required. A mocked browser contract test passed; real model output still needs a live test. Edge reasoning remains a model suggestion, not a proven dependency.
 
 2026-10-12 18:46 test: AI question proposal returned successfully; separate verifier returned503. No generated questions were accepted. Context sampling now balances course topics.
+
+20:18 regression: procedural /clock-testing source search now retains Press Play. Live concept-map test returned503; this path remains live-unverified.
