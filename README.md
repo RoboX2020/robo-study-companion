@@ -2,6 +2,14 @@
 
 Draft Track D prototype for Multimodal AI Hackathon 2026. Learn robotics from cited source material and practice weak topics.
 
+## Live prototype and demo
+
+Public app: https://robostudy.prajvalarora.com/
+
+Demo (3:13, unlisted, English narration and subtitles): https://youtu.be/OthJixioWh4
+
+The public static app works offline; live AI is disconnected.
+
 ## Run
 
 Node 18+ required. `npm ci && npx vite` starts the frontend. `npm test` validates authored questions, retrieval/refusal, citation checks and learner updates. `npm run evaluate` produces the deterministic baseline report. `npx vite build` creates `dist/`.
@@ -34,7 +42,7 @@ AI is opt-in per request. Gemini unpaid content may be used to improve Google mo
 
 ## AI-assisted development disclosure
 
-Code, UI, authored tests and documentation were AI-assisted. Course material is credited to its actual authors. The owner must review and understand the implementation before submission. No model fine-tuning was performed.
+AI tools used: Instinct for code, UI, authored tests and documentation; Google Gemini for optional model integration, multimodal fixture tests and evaluation judging. Code, UI, authored tests and documentation were AI-assisted. Course material is credited to its actual authors. The owner must review and understand the implementation before submission. No model fine-tuning was performed.
 
 Local text now survives PDF/PPTX AI extraction failures. Offline excerpts preserve short code/formula lines and reject empty or invalid citation quotes. The /clock fallback and formula regression tests pass.
 
