@@ -21,3 +21,11 @@ assert(extractive('What topic publishes simulation time?',units).answer.includes
 assert(extractive('Resistance calculated', [{id:'a',title:'Ohm',text:'Resistance is calculated as:\nR = (V - V_LED) / I.',topic:'Circuits'},...Array.from({length:20},(_,i)=>({id:'d'+i,title:'Other',text:'unrelated topic',topic:'Other'}))]).answer.includes('R ='));
 assert.throws(()=>safeModelAnswer({answer:'x',evidence:[{id:units[0].id,quote:''}]},units));
 console.log('Short code/formula excerpt preservation and empty-quote rejection passed.');
+
+const {validateConceptMap}=await import('./core.mjs');
+const graph={nodes:[{id:'c',label:'Clock',evidence:[{id:'lab-19-0',quote:'Topic Name = /clock'}]},{id:'d',label:'Playback',evidence:[{id:'lab-20-0',quote:'Press Play in Isaac Sim.'}]}],edges:[{from:'d',to:'c',reason:'Playback drives simulation.'}]};
+assert.equal(validateConceptMap(graph,units).nodes.length,2);
+assert.throws(()=>validateConceptMap({...graph,edges:[...graph.edges,{from:'c',to:'d',reason:'bad'}]},units));
+assert.throws(()=>validateConceptMap({...graph,edges:[{from:'missing',to:'c',reason:'bad'}]},units));
+assert.throws(()=>validateConceptMap({nodes:[{id:'x',label:'invented',evidence:[{id:'lab-19-0',quote:'fabricated'}]}],edges:[]},units));
+console.log('Evidence-backed concept graph, cycle and missing-node rejection passed.');
