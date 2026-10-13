@@ -1,0 +1,59 @@
+{
+  "framework": "DeepEval BaseMetric / LLMTestCase",
+  "metrics": "Custom deterministic source-ID precision and recall, not built-in semantic metrics",
+  "results": [
+    {
+      "question": "ROS2 Publish Clock topic",
+      "metrics": {
+        "Custom precision": 0.5,
+        "Custom recall": 0.6666666666666666
+      }
+    },
+    {
+      "question": "Wheel Radius Wheel Distance Max Linear Speed",
+      "metrics": {
+        "Custom precision": 0.5,
+        "Custom recall": 1.0
+      }
+    },
+    {
+      "question": "LED resistor resistance",
+      "metrics": {
+        "Custom precision": 0.75,
+        "Custom recall": 1.0
+      }
+    },
+    {
+      "question": "Common grounding Arduino sensor servo",
+      "metrics": {
+        "Custom precision": 0.25,
+        "Custom recall": 0.5
+      }
+    },
+    {
+      "question": "geometry_msgs/msg/Twist subscriber /cmd_vel",
+      "metrics": {
+        "Custom precision": 0.5,
+        "Custom recall": 1.0
+      }
+    },
+    {
+      "question": "weather forecast Paris",
+      "metrics": {
+        "Custom precision": 1.0,
+        "Custom recall": 1.0
+      }
+    },
+    {
+      "question": "Who won the 2040 World Cup?",
+      "metrics": {
+        "Custom precision": 1.0,
+        "Custom recall": 1.0
+      }
+    }
+  ],
+  "faithfulness": "Not semantically evaluated",
+  "answer_relevancy": "Not semantically evaluated",
+  "telemetry": "Disabled",
+  "limitations": "Seven hand-built cases; no claims of real learning gains"
+}
