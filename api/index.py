@@ -20,10 +20,10 @@ class handler(BaseHTTPRequestHandler):
             text = ''.join(p.get('text','') for p in result.get('candidates',[{}])[0].get('content',{}).get('parts',[]))
             self.reply(200, {'result':json.loads(text)})
         except urllib.error.HTTPError as e:
-            print('Provider HTTP', e.code, e.read().decode()[:800], flush=True)
+            print('Provider status', e.code, flush=True)
             self.reply(429 if e.code == 429 else 502, {'error':'Model quota reached or provider unavailable. Use offline mode; no paid fallback.'})
         except Exception as e:
-            print('Gateway failure', type(e).__name__, str(e)[:200], flush=True)
+            print('Gateway failure', type(e).__name__, flush=True)
             self.reply(502, {'error':'AI request did not finish. No data was saved on this server.'})
     def reply(self,status,data):
         self.send_response(status); self.send_header('Content-Type','application/json'); self.send_header('Cache-Control','no-store'); self.end_headers(); self.wfile.write(json.dumps(data).encode())
