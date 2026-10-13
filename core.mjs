@@ -40,3 +40,16 @@ export function safeModelAnswer(result,units) {
  if(result.refused||!valid.length)return {answer:'The material does not support an answer with verifiable excerpts. I am declining rather than guessing.',refused:true,citations:[]};
  return {answer:String(result.answer),refused:false,citations:[...new Set(valid.map(e=>e.id))],evidence:valid};
 }
+
+export function classifyUnit(text) {
+ const categories=[['Circuits & Arduino',['voltage','resistor','ohm','led','breadboard','digitalwrite','pinmode']],['Sensors & motion',['servo','infrared','sensor','motor','gate','l293d','h-bridge']],['ROS 2 & Isaac Sim',['ros2','ros 2','isaac','turtlebot','cmd_vel','clock','omnigraph','usd','odometry','nav2','lidar','twist']]];
+ const scores=categories.map(([topic,terms])=>({topic,score:terms.filter(t=>text.toLowerCase().includes(t)).length})).sort((a,b)=>b.score-a.score);
+ return scores[0].score?scores[0].topic:'Other course concepts';
+}
+export function assessmentBatch(bank,state,scope='all',limit=5) {
+ const copy={...state,seen:[...(state.seen||[])]},selected=[];
+ while(selected.length<limit){let pool=bank;if(scope==='all'){const counts=Object.fromEntries([...new Set(bank.map(q=>q.topic))].map(t=>[t,selected.filter(q=>q.topic===t).length]));const min=Math.min(...Object.values(counts));const balanced=bank.filter(q=>counts[q.topic]===min&&!(copy.seen||[]).includes(q.id));if(balanced.length)pool=balanced;}const q=nextQuestion(pool,copy,scope);if(!q)break;selected.push(q);copy.seen.push(q.id);}return selected;
+}
+export function lessonPlan(units,mastery){
+ return [...new Set(units.map(u=>u.topic))].sort((a,b)=>(mastery[a]??.25)-(mastery[b]??.25)).map(t=>({topic:t,mastery:mastery[t]??.25,review:units.filter(u=>u.topic===t).slice(0,2).map(u=>u.id)}));
+}
