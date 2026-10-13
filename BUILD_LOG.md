@@ -15,3 +15,5 @@ Draft only. Private repository, no submission, no billing, no publication of pri
 2026-10-12 17:51 AZ: Fixed fallback excerpt grouping across Markdown code fences; /clock and formula tests pass. Reject empty/invalid quote evidence. Real two-slide PPTX local+AI fixture passed. Spoken-video test returned503; test now requires upload success before inspecting citations. PDF/PPTX keep local text when optional AI fails. No public hosting decision received.
 
 2026-10-12 18:17 AZ: Spoken149KB video ingestion passed live free-tier model, with correct150-ohm calculation and0s citation. Added evidence-backed concept map extraction, unique-ID/edge/cycle checks and phone UI; mocked browser contract passed, live inference not tested this wake. No public hosting authority.
+
+2026-10-12 18:48 AZ: Representative topic-balanced context sampling added and tested. AI question proposal succeeded but verifier503 prevented acceptance. Recorded fresh private demo showing current offline search, mock exam/report, BKT, PDF original-page viewer and real PPTX images. No fake model answers in recording.
