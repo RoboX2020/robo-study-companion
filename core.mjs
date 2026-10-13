@@ -35,11 +35,12 @@ export function grade(q,input) {
  const text=String(input).toLowerCase(); return {correct:q.keywords.every(group=>group.some(x=>text.includes(x.toLowerCase()))),feedback:q.explanation+' Short answers use a transparent keyword check, not semantic grading.'};
 }
 export function validateQuestion(q,units) {
- const u=units.find(u=>u.id===q.source); if(!u||!q.evidence||!u.text.includes(q.evidence))return false;
+ const u=units.find(u=>u.id===q.source); if(!u||typeof q.evidence!=='string'||q.evidence.trim().length<5||!u.text.includes(q.evidence))return false;
+ if(typeof q.prompt!=='string'||q.prompt.trim().length<10||typeof q.explanation!=='string'||!q.explanation.trim()||!Number.isInteger(q.difficulty)||q.difficulty<1||q.difficulty>3)return false;
  if(!['mcq','short','numerical'].includes(q.type)||!q.topic||!q.id)return false;
  if(q.type==='mcq')return Array.isArray(q.options)&&q.options.length===4&&Number.isInteger(q.answer)&&q.answer>=0&&q.answer<4;
  if(q.type==='numerical') return Number.isFinite(Number(q.answer));
- return Array.isArray(q.keywords)&&q.keywords.length>0;
+ return Array.isArray(q.keywords)&&q.keywords.length>0&&q.keywords.every(group=>Array.isArray(group)&&group.length>0&&group.every(k=>typeof k==='string'&&k.trim().length>0));
 }
 export function safeModelAnswer(result,units) {
  if(!result || !Array.isArray(result.evidence)) throw Error('The model did not return source evidence.');
