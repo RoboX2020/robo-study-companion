@@ -7,7 +7,7 @@ assert(masteryUpdate(.25,true)>.25);assert(masteryUpdate(.8,false)<.8);
 assert(extractive('What is the weather in Paris?',units).refused);
 assert(retrieve('ROS2 Publish Clock topic',units).some(u=>u.id==='lab-19-0'));
 assert(retrieve('LED resistor resistance',units).some(u=>u.id.startsWith('play-')));
-assert(!safeModelAnswer({answer:'invented',evidence:[{id:units[0].id,quote:'not present'}]},units).citations.length);
+assert.throws(()=>safeModelAnswer({answer:'invented',evidence:[{id:units[0].id,quote:'not present'}]},units));
 const seen=[];let state={mastery:{},seen};while(true){const q=nextQuestion(bank,state);if(!q)break;assert(!seen.includes(q.id));seen.push(q.id);}assert.equal(seen.length,bank.length);
 console.log(`Passed: ${bank.length} source and answer validations; BKT; refusal; retrieval; citation rejection; no-repeat selection.`);
 const {classifyUnit,assessmentBatch}=await import('./core.mjs');
@@ -16,3 +16,8 @@ assert.equal(classifyUnit('ROS2 Isaac Sim /clock /cmd_vel'),'ROS 2 & Isaac Sim')
 assert.equal(assessmentBatch(bank,{seen:[],mastery:{}},'all',5).length,5);
 assert.equal(new Set(assessmentBatch(bank,{seen:[],mastery:{}},'all',5).map(q=>q.id)).size,5);
 console.log('Topic tagging and mock exam checks passed.');
+
+assert(extractive('What topic publishes simulation time?',units).answer.includes('/clock'));
+assert(extractive('Resistance calculated', [{id:'a',title:'Ohm',text:'Resistance is calculated as:\nR = (V - V_LED) / I.',topic:'Circuits'},...Array.from({length:20},(_,i)=>({id:'d'+i,title:'Other',text:'unrelated topic',topic:'Other'}))]).answer.includes('R ='));
+assert.throws(()=>safeModelAnswer({answer:'x',evidence:[{id:units[0].id,quote:''}]},units));
+console.log('Short code/formula excerpt preservation and empty-quote rejection passed.');
