@@ -1,3 +1,11 @@
+// ============================================================================
+// app.js - the RoboStudy single-page app: five screens (Ask your course,
+// Adaptive practice, Add sources, Your progress, Course map) rendered by the
+// render() function below. All state lives in localStorage ('robostudy-v1'),
+// all answers are grounded in course units (see core.mjs for the math), and
+// the optional AI mode asks Google Gemini via a server proxy - only after an
+// explicit per-request consent checkbox, with a plain-language privacy notice.
+// ============================================================================
 import './style.css';
 import seed from './data/sources.json';
 import bank from './data/questions.json';
