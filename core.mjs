@@ -1,11 +1,38 @@
+// ============================================================================
+// core.mjs - RoboStudy's study brain (no UI): the search, answering and
+// learner-model math used by app.js.
+//   retrieve()      - find the most relevant course excerpts (BM25-style search)
+//   extractive()    - answer by QUOTING sources, never inventing text
+//   masteryUpdate() - Bayesian knowledge tracing: update the estimate that a
+//                     topic is known after each answer
+//   nextQuestion()  - pick the next practice question at your weakest topic
+// Everything runs offline in the browser.
+// ============================================================================
+
+// Split text into search words: lowercase, keep letters/digits/underscore/slash,
+// drop very short words and common stop-words that carry no topic signal.
 export const words = s => (s.toLowerCase().match(/[a-z0-9_\/]+/g)||[]).filter(x=>x.length>2 && !new Set(['the','and','for','with','that','this','how','what','does','why','from','can','you','are','was','into','about','should','would']).has(x));
+// BM25-style relevance search - the same family of ranking formula search
+// engines use. For each course unit it scores: how often the query words appear
+// (with diminishing returns for repetition, and normalized so long units don't
+// win just by being long) x how RARE each word is across the whole course
+// (rare words are more telling), plus a bonus when the word is in the title.
 export function retrieve(query, units, count=4) {
  const q=[...new Set(words(query))]; if(!q.length) return [];
+ // df = "document frequency": in how many units does each query word appear?
+ // Used for the rarity weight below.
  const df=Object.fromEntries(q.map(w=>[w,units.filter(u=>words(u.text+' '+u.title).includes(w)).length]));
  return units.map(u=>{ const t=words(u.text), title=words(u.title); let score=0, hits=0;
  for(const w of q) {const f=t.filter(v=>v===w).length;if(f||title.includes(w))hits++;score+=(f?f/(f+1.2*(.25+.75*t.length/180)):0)*Math.log(1+(units.length-df[w]+.5)/(df[w]+.5))+(title.includes(w)?1.1:0);}
+ // coverage = fraction of the query's words this unit mentions at all. Units
+ // must clear BOTH a relevance bar (score > .8) and a coverage bar (>= 34% of
+ // query words) - this is what keeps weak, off-topic matches out of answers.
  return {...u,score,coverage:hits/q.length};}).filter(u=>u.score>.8 && u.coverage>=.34).sort((a,b)=>b.score-a.score).slice(0,count);
 }
+// Answer a question by EXTRACTING the most relevant sentences from the found
+// sources and quoting them verbatim (with citations). If nothing in the course
+// supports the question, it openly refuses instead of making something up -
+// the product's core promise: no outside knowledge, ever.
 export function extractive(query,units) {
  const hits=retrieve(query,units); if(!hits.length) return {answer:'I could not find support for this in your course material. Try a course concept or add a source. I will not fill the gap with outside knowledge.',refused:true,citations:[]};
  const q=words(query); const sentences=hits.flatMap(u=>{
@@ -19,12 +46,24 @@ export function extractive(query,units) {
  const leading=sentences.find(s=>s.id===hits[0].id);const ranked=[...sentences].sort((a,b)=>b.score-a.score);const procedural=/\b(before|steps|procedure|start|testing)\b/i.test(query);const selected=procedural&&leading?[leading,...ranked.filter(s=>s!==leading).slice(0,2)]:ranked.slice(0,3);
  return {answer:'Source excerpts (offline search, not a generated explanation):\n\n'+selected.map(x=>x.text).join('\n\n'),citations:[...new Set(selected.map(s=>s.id))],refused:false};
 }
+// Bayesian knowledge tracing - the classic tutor-system model. It keeps a
+// probability "the student knows this topic" and updates it after each answer,
+// while admitting two human wrinkles: a correct answer might be a lucky GUESS
+// (25%, like a 4-choice question) and a wrong answer might be a careless SLIP
+// (10%). After the evidence update, it also nudges mastery up a little (12%
+// learning rate) because practicing teaches. Estimates are clamped to 3%-97%:
+// the model never claims certainty either way.
 export function masteryUpdate(prior,correct,confidence=1) {
  // Bayesian knowledge tracing. Guess=.25, slip=.10, learn=.12.
  const p=Math.max(.03,Math.min(.97,prior??.25)), g=.25,s=.1;
+ // Bayes' rule: P(knows | outcome) - the two branches weigh the evidence
+ // against the guess/slip alternatives.
  const post=correct?p*(1-s)/(p*(1-s)+(1-p)*g):p*s/(p*s+(1-p)*(1-g));
  return Math.max(.03,Math.min(.97,p+(post+(1-post)*.12-p)*confidence));
 }
+// Pick what to practice next: only questions you haven't seen, sorted so your
+// WEAKEST topic comes first (ties broken toward easier questions). This is what
+// makes practice "adaptive".
 export function nextQuestion(bank,state,scope='all') {
  const candidates=bank.filter(q=>(scope==='all'||q.topic===scope)&&!(state.seen||[]).includes(q.id));
  return candidates.sort((a,b)=>((state.mastery?.[a.topic]??.25)-(state.mastery?.[b.topic]??.25))||a.difficulty-b.difficulty)[0]||null;
